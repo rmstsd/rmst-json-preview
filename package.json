@@ -1,7 +1,7 @@
 {
     "name": "react-json-preview",
     "description": "一个普普通通的, 不算太丑的 react 的 json 数据预览组件",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "main": "./dist/index.js",
     "license": "MIT",
     "scripts": {
@@ -39,9 +39,9 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mac-s-g/react-json-view.git"
+        "url": "https://github.com/lichunlei1225/react-json-preview"
     },
-    "homepage": "https://github.com/mac-s-g/react-json-view",
+    "homepage": "https://github.com/lichunlei1225/react-json-preview",
     "keywords": [
         "array-preview",
         "object-preview",
