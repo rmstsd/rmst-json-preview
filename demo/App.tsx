@@ -1,4 +1,4 @@
-
+import React from "react";
 import JsonView from "../src/index";
 
 const data = [
@@ -7,9 +7,7 @@ const data = [
         love: null,
         use: false,
         gender: -1,
-        vip_info: {
-            rename_days: '60'
-        },
+        vip_info: { rename_days: '60' },
         editor_info: [
             'bio',
             'topic',
@@ -20,18 +18,16 @@ const data = [
             [4, { name: '大家闺秀' }, 6]
         ]
     },
-    {
-        name: '人美声甜'
-    }
+    { name: '人美声甜' }
 ]
 
 const App = () => {
 
     return (
         <JsonView value={data}
-        // showArrayIndex={false}
-        // indent={4}
-        // singleQuote
+            showArrayIndex
+            // indent={4}
+            singleQuote
         // keyQuote
         />
     )

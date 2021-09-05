@@ -1,5 +1,5 @@
 
-import { FC, Fragment } from "react"
+import React, { FC, Fragment } from "react"
 import PropTypes from 'prop-types'
 
 import TObject from "./components/TObject"

@@ -1,11 +1,13 @@
 {
     "name": "react-json-preview",
-    "version": "1.0.0",
-    "main": "index.js",
+    "description": "一个普普通通的, 不算太丑的 react 的 json 数据预览组件",
+    "version": "1.0.1",
+    "main": "./dist/index.js",
     "license": "MIT",
     "scripts": {
         "dev": "webpack-dev-server --config ./webpackConfig/dev.js",
-        "build": "webpack --config ./webpackConfig/prod.js"
+        "build": "webpack --config ./webpackConfig/prod.js",
+        "build-demo": "webpack --config ./webpackConfig/dev.js"
     },
     "dependencies": {
         "react": "^17.0.2",
@@ -34,5 +36,28 @@
     "peerDependencies": {
         "react": "^17.0.0 || ^16.3.0 || ^15.5.4",
         "react-dom": "^17.0.0 || ^16.3.0 || ^15.5.4"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mac-s-g/react-json-view.git"
+    },
+    "homepage": "https://github.com/mac-s-g/react-json-view",
+    "keywords": [
+        "array-preview",
+        "object-preview",
+        "array-preview",
+        "object-preview",
+        "component",
+        "interactive",
+        "interactive-json",
+        "json",
+        "json-component",
+        "json-display",
+        "json-tree",
+        "json-view",
+        "json-preview",
+        "json-inspector",
+        "react",
+        "react-json"
+    ]
 }

@@ -11,6 +11,10 @@ const baseConfig = require('./base.js') // 引用公共的配置
 
 const devConfig = {
     entry: './demo/index.js', // 入口文件
+    output: {
+        filename: 'main.js',
+        path: path.resolve(__dirname, '../demo/dist'),
+    },
     mode: 'development', // 打包为开发模式
     devtool: 'inline-source-map',
     devServer: {
@@ -19,7 +23,7 @@ const devConfig = {
     },
     plugins: [
         new Hwb({
-            template: './demo/index.html'
+            template: './demo/public/index.html'
         })
     ],
     module: {

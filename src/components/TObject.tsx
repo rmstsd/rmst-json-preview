@@ -1,5 +1,5 @@
 
-import { UJsonViewProps } from '@/type';
+import { UJsonViewProps } from '../type';
 import React, { FC, useState } from 'react';
 import JsonView from '../JsonView';
 import { isArray, isObject } from '../utils';
