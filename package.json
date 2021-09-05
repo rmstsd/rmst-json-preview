@@ -1,7 +1,7 @@
 {
     "name": "react-json-preview",
     "description": "一个普普通通的, 不算太丑的 react 的 json 数据预览组件",
-    "version": "1.0.3",
+    "version": "1.0.0",
     "main": "./dist/index.js",
     "license": "MIT",
     "scripts": {
