@@ -6,5 +6,4 @@
 
 /webpackConfig
 .babelrc
-/tsconfig.json
 /yarn.lock
