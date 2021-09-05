@@ -13,7 +13,7 @@ const devConfig = {
     entry: './demo/index.js', // 入口文件
     output: {
         filename: 'main.js',
-        path: path.resolve(__dirname, '../demo/dist'),
+        path: path.resolve(__dirname, '../docs'),
     },
     mode: 'development', // 打包为开发模式
     devtool: 'inline-source-map',
