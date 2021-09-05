@@ -1,0 +1,38 @@
+{
+    "name": "react-json-preview",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "dev": "webpack-dev-server --config ./webpackConfig/dev.js",
+        "build": "webpack --config ./webpackConfig/prod.js"
+    },
+    "dependencies": {
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.15.4",
+        "@babel/preset-env": "^7.15.4",
+        "@babel/preset-react": "^7.14.5",
+        "@types/react": "^17.0.19",
+        "@types/react-dom": "^17.0.9",
+        "babel-loader": "^8.2.2",
+        "css-loader": "^6.2.0",
+        "html-webpack-plugin": "^5.3.2",
+        "less": "^4.1.1",
+        "less-loader": "^10.0.1",
+        "prop-types": "^15.7.2",
+        "style-loader": "^3.2.1",
+        "ts-loader": "^9.2.5",
+        "typescript": "^4.4.2",
+        "webpack": "^5.52.0",
+        "webpack-cli": "^4.8.0",
+        "webpack-dev-server": "^4.1.0",
+        "webpack-merge": "^5.8.0"
+    },
+    "peerDependencies": {
+        "react": "^17.0.0 || ^16.3.0 || ^15.5.4",
+        "react-dom": "^17.0.0 || ^16.3.0 || ^15.5.4"
+    }
+}
