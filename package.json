@@ -1,13 +1,14 @@
 {
     "name": "react-json-preview",
     "description": "一个普普通通的, 不算太丑的 react 的 json 数据预览组件",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "main": "./dist/index.js",
     "license": "MIT",
     "scripts": {
         "dev": "webpack-dev-server --config ./webpackConfig/dev.js",
         "build-publish": "webpack --config ./webpackConfig/prod.js",
-        "build-docs": "webpack --config ./webpackConfig/dev.js"
+        "build-docs": "webpack --config ./webpackConfig/dev.js",
+        "pub": "sh release.sh"
     },
     "dependencies": {
         "react": "^17.0.2",
