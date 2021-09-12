@@ -42,7 +42,7 @@ const App = () => {
     const [keyQuote, setKeyQuote] = useState(false)
 
 
-    const [data, setData] = useState<any>(ddd)
+    const [data, setData] = useState<any>(zhihu)
 
     return (
         <div style={{ padding: '10px 40px 40px' }}>
