@@ -1,18 +1,21 @@
 
 import { UJsonViewProps } from '../type';
-import React, { FC, useState } from 'react';
+import React, { FC, useContext } from 'react';
 import JsonView from '../JsonView';
 import { isArray, isObject } from '../utils';
+import { Context } from '../index';
 
 const singleWidth = 6
 
-const TObject: FC<UJsonViewProps> = ({ value, showArrayIndex, indent, singleQuote, keyQuote }) => {
+const TObject: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, singleQuote, keyQuote }) => {
     const isArrayTrue = isArray(value)
     const isObjectTrue = isObject(value)
 
     const list = isArrayTrue ? value : Object.entries(value)
 
-    const [bool, setBool] = useState(true)
+    const { storeBool, dispatch } = useContext(Context)
+    const key = nameKey?.slice(1) as string
+    const bool = storeBool[key] === undefined ? true : storeBool[key]
 
     const ListJsx = () => {
         if (isArrayTrue) return (
@@ -21,6 +24,7 @@ const TObject: FC<UJsonViewProps> = ({ value, showArrayIndex, indent, singleQuot
                     {showArrayIndex && <span className="arr-index">{idx}</span>}
                     {showArrayIndex && <span className="colon">:</span>}
                     <JsonView value={x}
+                        nameKey={`${nameKey}.${idx}`}
                         showArrayIndex={showArrayIndex}
                         indent={indent}
                         singleQuote={singleQuote}
@@ -42,6 +46,7 @@ const TObject: FC<UJsonViewProps> = ({ value, showArrayIndex, indent, singleQuot
                         <span className="key">{getObjectKey(k)}</span>
                         <span className="colon">:</span>
                         <JsonView value={v}
+                            nameKey={`${nameKey}.${k}`}
                             showArrayIndex={showArrayIndex}
                             indent={indent}
                             singleQuote={singleQuote}
@@ -53,11 +58,16 @@ const TObject: FC<UJsonViewProps> = ({ value, showArrayIndex, indent, singleQuot
         }
     }
 
+    const handleBool = () => {
+        const k = nameKey?.slice(1) as string
+        dispatch([k, !bool])
+    }
+
     return (
         <>
             <span className="expand-wrapper">
-                <button className="expand-btn" onClick={() => setBool(!bool)}>
-                    {bool ? '+' : '-'}
+                <button className="expand-btn" onClick={handleBool}>
+                    {bool ? '-' : '+'}
                 </button>
 
                 <span className="bracket">

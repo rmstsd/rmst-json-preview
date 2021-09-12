@@ -15,6 +15,7 @@ const devConfig = {
         filename: 'main.js',
         path: path.resolve(__dirname, '../docs'),
     },
+    stats: 'errors-warnings',
     mode: 'development', // 打包为开发模式
     devtool: 'inline-source-map',
     devServer: {
@@ -22,9 +23,7 @@ const devConfig = {
         hot: true
     },
     plugins: [
-        new Hwb({
-            template: './demo/public/index.html'
-        })
+        new Hwb({ template: './demo/public/index.html' })
     ],
     module: {
         rules: [

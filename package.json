@@ -6,8 +6,8 @@
     "license": "MIT",
     "scripts": {
         "dev": "webpack-dev-server --config ./webpackConfig/dev.js",
-        "build": "webpack --config ./webpackConfig/prod.js",
-        "build-demo": "webpack --config ./webpackConfig/dev.js"
+        "build-publish": "webpack --config ./webpackConfig/prod.js",
+        "build-docs": "webpack --config ./webpackConfig/dev.js"
     },
     "dependencies": {
         "react": "^17.0.2",

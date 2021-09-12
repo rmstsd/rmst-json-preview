@@ -1,19 +1,18 @@
 
 import React, { FC, Fragment } from "react"
 import PropTypes from 'prop-types'
-
 import TObject from "./components/TObject"
-
 import { isNumber, isString, isBoolean, isNull } from "./utils"
-
-import "./jsonView.less";
 import { UJsonViewProps } from "./type";
+import "./jsonView.less";
 
-const JsonView: FC<UJsonViewProps> = ({ value, showArrayIndex, indent, singleQuote, keyQuote }) => {
+const JsonView: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, singleQuote, keyQuote }) => {
+
     const jsx = []
 
     if (typeof value === 'object' && value !== null)
         jsx.push(<TObject value={value}
+            nameKey={nameKey ? nameKey : ''}
             showArrayIndex={showArrayIndex}
             indent={indent}
             singleQuote={singleQuote}

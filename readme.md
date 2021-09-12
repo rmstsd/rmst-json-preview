@@ -6,6 +6,14 @@ react-json-preview 是一个一个普普通通的, 不算太丑的 react 的 jso
 
 # 使用
 
+```js
+npm install react-json-preview
+```
+or
+```js
+yarn add react-json-preview
+```
+
 ```jsx
 import ReactJsonPreview from "react-json-preview";
 

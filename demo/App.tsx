@@ -3,7 +3,7 @@ import JsonView from "../src/index";
 
 import Switch from "./Switch";
 
-const data = [
+const zhihu = [
     {
         name: '大家闺秀',
         love: null,
@@ -14,23 +14,35 @@ const data = [
             'bio',
             'topic',
             { name: '大家闺秀' },
-            [4, { name: '大家闺秀' }, 6],
-            { name: '大家闺秀' },
+            [4, { name: '哈哈哈哈' }, 6],
+            { name: '方法人' },
             { rename_days: '60' },
-            [4, { name: '大家闺秀' }, 6]
+            [4, { name: '大幅度发的' }, 6]
         ]
     },
     { name: '人美声甜' }
 ]
 
+const ddd = [
+    {
+        name: '大家闺秀',
+        vip_info: { rename_days: '60' },
+    },
+    {
+        name: '大家闺秀',
+        vip_info: { rename_days: '60' },
+    }
+]
+
 const App = () => {
 
     const [indent, setIndent] = useState(4)
-    const [showArrayIndex, setShowArrayIndex] = useState(false)
+    const [showArrayIndex, setShowArrayIndex] = useState(true)
     const [singleQuote, setSingleQuote] = useState(false)
     const [keyQuote, setKeyQuote] = useState(false)
 
 
+    const [data, setData] = useState<any>(ddd)
 
     return (
         <div style={{ padding: '10px 40px 40px' }}>
@@ -52,11 +64,13 @@ const App = () => {
                     对象的 key 是否显示引号：<Switch checked={keyQuote} onChange={setKeyQuote} />
                 </div>
 
+                {/* <button onClick={() => setData(zhihu)}>数据1</button>
+                <button onClick={() => setData(ddd)}>数据2</button> */}
             </section>
 
             <hr />
 
-            <section style={{ border: '1px solid #757575', padding: 10, borderRadius: 10 }}>
+            <section style={{ padding: 10 }}>
                 <JsonView value={data}
                     showArrayIndex={showArrayIndex}
                     indent={indent}
