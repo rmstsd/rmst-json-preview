@@ -3,7 +3,7 @@ import { UJsonViewProps } from '../type';
 import React, { FC, useContext } from 'react';
 import JsonView from '../JsonView';
 import { isArray, isObject } from '../utils';
-import { Context } from '../index';
+import { Context } from '../Entry';
 
 const singleWidth = 6
 

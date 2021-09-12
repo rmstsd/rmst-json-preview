@@ -4,6 +4,8 @@
 
 react-json-preview 是一个一个普普通通的, 不算太丑的 react 的 json 数据预览组件
 
+预览地址：https://lichunlei1225.github.io/react-json-preview/
+
 # 使用
 
 ```js

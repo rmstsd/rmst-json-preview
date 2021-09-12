@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import TObject from "./components/TObject"
 import { isNumber, isString, isBoolean, isNull } from "./utils"
 import { UJsonViewProps } from "./type";
-import "./jsonView.less";
+import "./style.less";
 
 const JsonView: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, singleQuote, keyQuote }) => {
 
