@@ -9,7 +9,7 @@ const baseConfig = require('./base.js');
 // const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 用于将组件的css打包成单独的文件输出到`dist`目录中
 
 const devConfig = {
-    entry: './src/index.ts',
+    entry: './src/index.tsx',
     mode: 'production',
     output: {
         path: path.resolve(__dirname, '../dist'),
