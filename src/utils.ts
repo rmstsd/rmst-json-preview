@@ -7,3 +7,4 @@ export const isNull = (v: any) => v === null
 export const isArray = (v: any) => Object.prototype.toString.call(v) === "[object Array]"
 
 export const isObject = (v: any) => Object.prototype.toString.call(v) === "[object Object]"
+

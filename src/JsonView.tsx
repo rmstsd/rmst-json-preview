@@ -1,23 +1,23 @@
 
-import React, { FC, Fragment } from "react"
-import PropTypes from 'prop-types'
+import React, { FC, Fragment, useContext } from "react"
 import TObject from "./components/TObject"
 import { isNumber, isString, isBoolean, isNull } from "./utils"
-import { UJsonViewProps } from "./type";
+
+import { UInnerProps } from "./type"
+import { Context } from "./Entry"
+
 import "./style.less";
 
-const JsonView: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, singleQuote, keyQuote }) => {
+const JsonView: FC<UInnerProps> = ({ value, nameKey }) => {
+
+    const { store } = useContext(Context)
+    const { config } = store
+    const { singleQuote } = config
 
     const jsx = []
 
     if (typeof value === 'object' && value !== null)
-        jsx.push(<TObject value={value}
-            nameKey={nameKey ? nameKey : ''}
-            showArrayIndex={showArrayIndex}
-            indent={indent}
-            singleQuote={singleQuote}
-            keyQuote={keyQuote}
-        />)
+        jsx.push(<TObject value={value} nameKey={nameKey ? nameKey : ''} />)
 
     if (isNumber(value)) jsx.push(<span className="number">{value}</span>)
 
@@ -32,28 +32,6 @@ const JsonView: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, 
             {jsx.map((x, idx) => <Fragment key={idx}>{x}</Fragment>)}
         </span>
     )
-}
-
-JsonView.propTypes = {
-    value: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.object,
-        PropTypes.number,
-        PropTypes.string,
-        PropTypes.bool
-    ]),
-
-    showArrayIndex: PropTypes.bool,
-    indent: PropTypes.number,
-    singleQuote: PropTypes.bool,
-    keyQuote: PropTypes.bool,
-}
-
-JsonView.defaultProps = {
-    showArrayIndex: false,
-    indent: 4,
-    singleQuote: false,
-    keyQuote: false
 }
 
 export default JsonView

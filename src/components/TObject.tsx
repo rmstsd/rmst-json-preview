@@ -1,21 +1,25 @@
 
-import { UJsonViewProps } from '../type';
-import React, { FC, useContext } from 'react';
-import JsonView from '../JsonView';
-import { isArray, isObject } from '../utils';
-import { Context } from '../Entry';
+import { UInnerProps } from '../type'
+import React, { FC, useContext } from 'react'
+import JsonView from '../JsonView'
+import { isArray, isObject } from '../utils'
+import { Context } from '../Entry'
 
 const singleWidth = 6
 
-const TObject: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, singleQuote, keyQuote }) => {
+const TObject: FC<UInnerProps> = ({ value, nameKey }) => {
     const isArrayTrue = isArray(value)
     const isObjectTrue = isObject(value)
 
     const list = isArrayTrue ? value : Object.entries(value)
 
-    const { storeBool, dispatch } = useContext(Context)
+    const { store, dispatch } = useContext(Context)
+    const { expandStatus, config } = store
+
+    const { showArrayIndex, indent, singleQuote, keyQuote } = config
+
     const key = nameKey?.slice(1) as string
-    const bool = storeBool[key] === undefined ? true : storeBool[key]
+    const bool = expandStatus[key] === undefined ? true : expandStatus[key]
 
     const ListJsx = () => {
         if (isArrayTrue) return (
@@ -23,13 +27,7 @@ const TObject: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, s
                 <div key={idx} className="object-item" style={{ paddingLeft: indent as number * singleWidth }}>
                     {showArrayIndex && <span className="arr-index">{idx}</span>}
                     {showArrayIndex && <span className="colon">:</span>}
-                    <JsonView value={x}
-                        nameKey={`${nameKey}.${idx}`}
-                        showArrayIndex={showArrayIndex}
-                        indent={indent}
-                        singleQuote={singleQuote}
-                        keyQuote={keyQuote}
-                    />
+                    <JsonView value={x} nameKey={`${nameKey}.${idx}`} />
                 </div>
             )
         )
@@ -45,13 +43,7 @@ const TObject: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, s
                     <div key={idx} className="object-item" style={{ paddingLeft: indent as number * singleWidth }}>
                         <span className="key">{getObjectKey(k)}</span>
                         <span className="colon">:</span>
-                        <JsonView value={v}
-                            nameKey={`${nameKey}.${k}`}
-                            showArrayIndex={showArrayIndex}
-                            indent={indent}
-                            singleQuote={singleQuote}
-                            keyQuote={keyQuote}
-                        />
+                        <JsonView value={v} nameKey={`${nameKey}.${k}`} />
                     </div>
                 )
             )
@@ -60,7 +52,7 @@ const TObject: FC<UJsonViewProps> = ({ value, nameKey, showArrayIndex, indent, s
 
     const handleBool = () => {
         const k = nameKey?.slice(1) as string
-        dispatch([k, !bool])
+        dispatch({ oper: 'changeExpand', value: [k, !bool] })
     }
 
     return (

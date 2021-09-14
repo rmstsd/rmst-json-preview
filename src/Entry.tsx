@@ -1,29 +1,79 @@
-import React, { FC, createContext, useReducer, useEffect } from "react";
+import React, { FC, createContext, useReducer, Dispatch, useEffect } from "react"
+import PropTypes from 'prop-types'
 import JsonView from "./JsonView"
-import { UJsonViewProps, UState } from "./type";
 
-const reducer = (state: UState, [key, nvBool]: [string, boolean]) => {
-    return { ...state, [key]: nvBool }
+import { UConfig, UEntryProps, UPayload, UState } from "./type"
+
+const initVal = {
+    expandStatus: {},
+    config: {
+        showArrayIndex: false,
+        indent: 4,
+        singleQuote: false,
+        keyQuote: false
+    }
 }
 
-export const Context = createContext<{ storeBool: UState, dispatch: Function }>(undefined as any)
+const mutations = {
+    clear(state: UState) {
+        return { ...state, expandStatus: {} }
+    },
+    changeExpand(state: UState, value: [string, boolean]) {
+        const expandStatus = Object.assign({}, state.expandStatus)
+        const [key, bool] = value
+        expandStatus[key] = bool
+        return { ...state, expandStatus }
+    },
+    changeConfig(state: UState, config: UConfig) {
+        return { ...state, config }
+    }
+}
 
-const Root: FC<UJsonViewProps> = ({ value, showArrayIndex, indent, singleQuote, keyQuote }) => {
+const reducer = (state: UState, { oper, value }: UPayload) => {
+    return mutations[oper](state, value)
+}
 
-    const [storeBool, dispatch] = useReducer(reducer, {})
+export const Context = createContext<{ store: UState, dispatch: Dispatch<UPayload> }>(undefined as any)
+
+const Entry: FC<UEntryProps> = props => {
+    const { value, ...config } = props
+    const [store, dispatch] = useReducer(reducer, initVal)
+
+    useEffect(() => dispatch({ oper: 'clear' }), [value])
+
+    useEffect(() => {
+        if (JSON.stringify(config) == JSON.stringify(store.config)) return
+        dispatch({ oper: 'changeConfig', value: config })
+    }, [config])
 
     return (
-        <Context.Provider value={{ storeBool, dispatch }}>
-            <JsonView
-                value={value}
-                showArrayIndex={showArrayIndex}
-                indent={indent}
-                singleQuote={singleQuote}
-                keyQuote={keyQuote}
-            />
+        <Context.Provider value={{ store, dispatch }}>
+            <JsonView value={value} />
         </Context.Provider>
     )
 }
 
+Entry.propTypes = {
+    value: PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.object,
+        PropTypes.number,
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
-export default Root
+    showArrayIndex: PropTypes.bool,
+    indent: PropTypes.number,
+    singleQuote: PropTypes.bool,
+    keyQuote: PropTypes.bool,
+}
+
+Entry.defaultProps = {
+    showArrayIndex: false,
+    indent: 4,
+    singleQuote: false,
+    keyQuote: false
+}
+
+
+export default Entry

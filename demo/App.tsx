@@ -64,8 +64,8 @@ const App = () => {
                     对象的 key 是否显示引号：<Switch checked={keyQuote} onChange={setKeyQuote} />
                 </div>
 
-                {/* <button onClick={() => setData(zhihu)}>数据1</button>
-                <button onClick={() => setData(ddd)}>数据2</button> */}
+                <button onClick={() => setData(zhihu)}>数据1</button>
+                <button onClick={() => setData(ddd)}>数据2</button>
             </section>
 
             <hr />
