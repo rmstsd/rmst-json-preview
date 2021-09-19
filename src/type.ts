@@ -4,27 +4,21 @@ export interface UInnerProps {
     nameKey?: string,
 }
 
-export interface UEntryProps extends UInnerProps {
+export interface UConfig {
     showArrayIndex?: boolean,
     indent?: number,
     singleQuote?: boolean,
     keyQuote?: boolean
 }
 
-
-export interface UConfig {
-    showArrayIndex: boolean,
-    indent: number,
-    singleQuote: boolean,
-    keyQuote: boolean
-}
+export interface UEntryProps extends UInnerProps, UConfig { }
 
 export interface UState {
-    expandStatus: { [key: string]: boolean },
-    config: UConfig
+    expandStatus: { [key: string]: boolean }
 }
 
 export interface UPayload {
-    oper: 'clear' | 'changeExpand' | 'changeConfig',
+    oper: 'clear' | 'changeExpand',
     value?: any
 }
+

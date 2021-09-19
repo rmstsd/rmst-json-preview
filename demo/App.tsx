@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import JsonView from "../src/index";
 
 import Switch from "./Switch";
+import './app.less'
 
 const zhihu = [
     {
@@ -25,14 +26,23 @@ const zhihu = [
 
 const ddd = [
     {
-        name: '大家闺秀',
+        name: '哔哩哔哩',
         vip_info: { rename_days: '60' },
     },
     {
-        name: '大家闺秀',
+        name: '虎牙',
         vip_info: { rename_days: '60' },
     }
 ]
+
+const handleData = (str: string) => {
+    if (!str) return ''
+    try {
+        return JSON.parse(str)
+    } catch (error) {
+        return String(error)
+    }
+}
 
 const App = () => {
 
@@ -41,43 +51,51 @@ const App = () => {
     const [singleQuote, setSingleQuote] = useState(false)
     const [keyQuote, setKeyQuote] = useState(false)
 
-
-    const [data, setData] = useState<any>(zhihu)
+    const [value, setValue] = useState<any>(JSON.stringify(zhihu))
+    const jsonData = handleData(value)
 
     return (
-        <div style={{ padding: '10px 40px 40px' }}>
+        <div className="app-container">
 
-            <section>
-                <div>
+            <section className="tool-container">
+                <span className="tool-item">
                     当前缩进 : <input type="range" min={0} max={20} value={String(indent)} onChange={evt => setIndent(Number(evt.target.value))} />  {indent}
-                </div>
+                </span>
 
-                <div>
+                <span className="tool-item">
                     是否显示数组索引：<Switch checked={showArrayIndex} onChange={setShowArrayIndex} />
-                </div>
+                </span>
 
-                <div>
+                <span className="tool-item">
                     是否使用单引号(只针对值起作用)：<Switch checked={singleQuote} onChange={setSingleQuote} />
-                </div>
+                </span>
 
-                <div>
+                <span className="tool-item">
                     对象的 key 是否显示引号：<Switch checked={keyQuote} onChange={setKeyQuote} />
-                </div>
+                </span>
 
-                <button onClick={() => setData(zhihu)}>数据1</button>
-                <button onClick={() => setData(ddd)}>数据2</button>
+                <span className="tool-item">
+                    <button onClick={() => setValue(JSON.stringify(zhihu))}>数据1</button>
+                    <button onClick={() => setValue(JSON.stringify(ddd))}>数据2</button>
+                </span>
+
             </section>
 
-            <hr />
 
-            <section style={{ padding: 10 }}>
-                <JsonView value={data}
-                    showArrayIndex={showArrayIndex}
-                    indent={indent}
-                    singleQuote={singleQuote}
-                    keyQuote={keyQuote}
-                />
-            </section>
+            <main className="main-container">
+                <section className="textarea-box">
+                    <textarea className="textarea" value={value} placeholder="输入json字符串" onChange={evt => setValue(evt.target.value)} />
+                </section>
+                <section className="json-preview-box">
+                    <JsonView value={jsonData}
+                        showArrayIndex={showArrayIndex}
+                        indent={indent}
+                        singleQuote={singleQuote}
+                        keyQuote={keyQuote}
+                    />
+                </section>
+            </main>
+
         </div>
 
     )

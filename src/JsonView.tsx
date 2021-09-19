@@ -10,9 +10,8 @@ import "./style.less";
 
 const JsonView: FC<UInnerProps> = ({ value, nameKey }) => {
 
-    const { store } = useContext(Context)
-    const { config } = store
-    const { singleQuote } = config
+    const { refConfig } = useContext(Context)
+    const { singleQuote } = refConfig.current
 
     const jsx = []
 
