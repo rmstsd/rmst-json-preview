@@ -13,10 +13,10 @@ const TObject: FC<UInnerProps> = ({ value, nameKey }) => {
 
     const list = isArrayTrue ? value : Object.entries(value)
 
-    const { store, refConfig, dispatch } = useContext(Context)
+    const { store, config, dispatch } = useContext(Context)
     const { expandStatus } = store
 
-    const { showArrayIndex, indent, keyQuote } = refConfig.current
+    const { showArrayIndex, indent, keyQuote } = config
 
     const key = nameKey?.slice(1) as string
     const bool = expandStatus[key] === undefined ? true : expandStatus[key]

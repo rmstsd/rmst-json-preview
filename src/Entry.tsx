@@ -1,8 +1,8 @@
-import React, { FC, createContext, useReducer, Dispatch, useEffect, useRef, MutableRefObject, useState } from "react"
+import React, { FC, createContext, useReducer } from "react"
 import PropTypes from 'prop-types'
 import JsonView from "./JsonView"
 
-import { UConfig, UEntryProps, UPayload, UState } from "./type"
+import { UContextValue, UEntryProps, UPayload, UState } from "./type"
 
 const initVal = {
     expandStatus: {}
@@ -24,18 +24,15 @@ const reducer = (state: UState, { oper, value }: UPayload) => {
     return mutations[oper](state, value)
 }
 
-export const Context = createContext<{ store: UState, refConfig: MutableRefObject<UConfig>, dispatch: Dispatch<UPayload> }>(undefined as any)
+export const Context = createContext<UContextValue>(undefined as any)
 
 const Entry: FC<UEntryProps> = props => {
 
     const { value, ...config } = props
     const [store, dispatch] = useReducer(reducer, initVal)
 
-    const refConfig = useRef(config)
-    refConfig.current = config
-
     return (
-        <Context.Provider value={{ store, refConfig, dispatch }}>
+        <Context.Provider value={{ store, config, dispatch }}>
             <JsonView value={value} />
         </Context.Provider>
     )

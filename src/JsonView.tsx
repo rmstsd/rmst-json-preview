@@ -2,21 +2,20 @@
 import React, { FC, Fragment, useContext } from "react"
 import TObject from "./components/TObject"
 import { isNumber, isString, isBoolean, isNull } from "./utils"
-
-import { UInnerProps } from "./type"
 import { Context } from "./Entry"
 
-import "./style.less";
+import { UInnerProps } from "./type"
+
+import "./style.less"
 
 const JsonView: FC<UInnerProps> = ({ value, nameKey }) => {
 
-    const { refConfig } = useContext(Context)
-    const { singleQuote } = refConfig.current
+    const { config } = useContext(Context)
+    const { singleQuote } = config
 
     const jsx = []
 
-    if (typeof value === 'object' && value !== null)
-        jsx.push(<TObject value={value} nameKey={nameKey ? nameKey : ''} />)
+    if (typeof value === 'object' && value !== null) jsx.push(<TObject value={value} nameKey={nameKey ? nameKey : ''} />)
 
     if (isNumber(value)) jsx.push(<span className="number">{value}</span>)
 

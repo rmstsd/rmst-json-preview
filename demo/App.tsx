@@ -35,6 +35,23 @@ const ddd = [
     }
 ]
 
+const data3 = {
+    name: '大家闺秀',
+    love: null,
+    use: false,
+    gender: -1,
+    vip_info: { rename_days: '60' },
+    editor_info: [
+        'bio',
+        'topic',
+        { name: '大家闺秀' },
+        [4, { name: '哈哈哈哈' }, 6],
+        { name: '方法人' },
+        { rename_days: '60' },
+        [4, { name: '大幅度发的' }, 6]
+    ]
+}
+
 const handleData = (str: string) => {
     if (!str) return ''
     try {
@@ -45,7 +62,6 @@ const handleData = (str: string) => {
 }
 
 const App = () => {
-
     const [indent, setIndent] = useState(4)
     const [showArrayIndex, setShowArrayIndex] = useState(true)
     const [singleQuote, setSingleQuote] = useState(false)
@@ -77,6 +93,11 @@ const App = () => {
                 <span className="tool-item">
                     <button onClick={() => setValue(JSON.stringify(zhihu))}>数据1</button>
                     <button onClick={() => setValue(JSON.stringify(ddd))}>数据2</button>
+                    <button onClick={() => setValue(JSON.stringify(data3))}>数据3</button>
+                </span>
+
+                <span className="tool-item">
+                    <a href="https://github.com/lichunlei1225/react-json-preview" target="_blank">GitHub地址</a>
                 </span>
 
             </section>

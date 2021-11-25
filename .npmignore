@@ -2,10 +2,6 @@
 /demo
 /docs
 /node_modules
-/src
-/webpack
 
-/webpackConfig
-.babelrc
 /yarn.lock
 release.sh

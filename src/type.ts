@@ -1,24 +1,29 @@
+import { Dispatch } from "react"
 
-export interface UInnerProps {
+export type UInnerProps = {
     value?: any,
     nameKey?: string,
 }
 
-export interface UConfig {
+export type UConfig = {
     showArrayIndex?: boolean,
     indent?: number,
     singleQuote?: boolean,
     keyQuote?: boolean
 }
 
-export interface UEntryProps extends UInnerProps, UConfig { }
+export type UEntryProps = UInnerProps & UConfig
 
-export interface UState {
+export type UState = {
     expandStatus: { [key: string]: boolean }
 }
 
-export interface UPayload {
+export type UPayload = {
     oper: 'clear' | 'changeExpand',
     value?: any
+}
+
+export type UContextValue = {
+    store: UState, config: UConfig, dispatch: Dispatch<UPayload>
 }
 
