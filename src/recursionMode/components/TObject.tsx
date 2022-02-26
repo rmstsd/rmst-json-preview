@@ -1,7 +1,7 @@
 
 import { UInnerProps } from '../type'
 import React, { FC, useContext } from 'react'
-import JsonView from '../JsonView'
+import ValueView from '../ValueView'
 import { isArray, isObject } from '../utils'
 import { Context } from '../Entry'
 
@@ -27,7 +27,7 @@ const TObject: FC<UInnerProps> = ({ value, nameKey }) => {
                 <div key={idx} className="object-item" style={{ paddingLeft: indent as number * singleWidth }}>
                     {showArrayIndex && <span className="arr-index">{idx}</span>}
                     {showArrayIndex && <span className="colon">:</span>}
-                    <JsonView value={x} nameKey={`${nameKey}.${idx}`} />
+                    <ValueView value={x} nameKey={`${nameKey}.${idx}`} />
                 </div>
             )
         )
@@ -43,7 +43,7 @@ const TObject: FC<UInnerProps> = ({ value, nameKey }) => {
                     <div key={idx} className="object-item" style={{ paddingLeft: indent as number * singleWidth }}>
                         <span className="key">{getObjectKey(k)}</span>
                         <span className="colon">:</span>
-                        <JsonView value={v} nameKey={`${nameKey}.${k}`} />
+                        <ValueView value={v} nameKey={`${nameKey}.${k}`} />
                     </div>
                 )
             )
@@ -69,6 +69,10 @@ const TObject: FC<UInnerProps> = ({ value, nameKey }) => {
             </span>
 
             {bool ? ListJsx() : <span className="object-count">{(list as []).length}</span>}
+
+            {/* <div style={{ display: bool ? 'block' : 'none' }}>{ListJsx()}</div>
+            {!bool && <span className="object-count">{(list as []).length}</span>} */}
+
 
             <span className="bracket">
                 {isArrayTrue && ']'}

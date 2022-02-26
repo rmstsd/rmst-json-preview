@@ -1,8 +1,13 @@
+// 递归的方式
+
 import React, { FC, createContext, useReducer } from "react"
 import PropTypes from 'prop-types'
-import JsonView from "./JsonView"
 
-import { UContextValue, UEntryProps, UPayload, UState } from "./type"
+import ValueView from "./ValueView"
+
+import "./style.less"
+
+import type { UContextValue, UEntryProps, UPayload, UState } from "./type"
 
 const initVal = {
     expandStatus: {}
@@ -27,13 +32,14 @@ const reducer = (state: UState, { oper, value }: UPayload) => {
 export const Context = createContext<UContextValue>(undefined as any)
 
 const Entry: FC<UEntryProps> = props => {
-
     const { value, ...config } = props
     const [store, dispatch] = useReducer(reducer, initVal)
 
     return (
         <Context.Provider value={{ store, config, dispatch }}>
-            <JsonView value={value} />
+            <span className="view-code">
+                <ValueView value={value} />
+            </span>
         </Context.Provider>
     )
 }

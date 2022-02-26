@@ -4,11 +4,9 @@ import TObject from "./components/TObject"
 import { isNumber, isString, isBoolean, isNull } from "./utils"
 import { Context } from "./Entry"
 
-import { UInnerProps } from "./type"
+import type { UInnerProps } from "./type"
 
-import "./style.less"
-
-const JsonView: FC<UInnerProps> = ({ value, nameKey }) => {
+const ValueView: FC<UInnerProps> = ({ value, nameKey }) => {
 
     const { config } = useContext(Context)
     const { singleQuote } = config
@@ -26,10 +24,10 @@ const JsonView: FC<UInnerProps> = ({ value, nameKey }) => {
     if (isNull(value)) jsx.push(<span className="null">{String(value)}</span>)
 
     return (
-        <span className="view-code">
+        <>
             {jsx.map((x, idx) => <Fragment key={idx}>{x}</Fragment>)}
-        </span>
+        </>
     )
 }
 
-export default JsonView
+export default ValueView

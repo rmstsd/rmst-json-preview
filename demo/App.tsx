@@ -4,25 +4,20 @@ import JsonView from "../src/index";
 import Switch from "./Switch";
 import './app.less'
 
-const zhihu = [
-    {
-        name: '大家闺秀',
-        love: null,
-        use: false,
-        gender: -1,
-        vip_info: { rename_days: '60' },
-        editor_info: [
-            'bio',
-            'topic',
-            { name: '大家闺秀' },
-            [4, { name: '哈哈哈哈' }, 6],
-            { name: '方法人' },
-            { rename_days: '60' },
-            [4, { name: '大幅度发的' }, 6]
+const zhihu = {
+    gender: 1,
+    vip_info: {
+        rename_days: 60,
+        gender: 1,
+        array: [
+            1, 2, 3
         ]
     },
-    { name: '人美声甜' }
-]
+    name: '大家闺秀',
+    aaa: null,
+    yu: true
+}
+
 
 const ddd = [
     {
@@ -67,14 +62,14 @@ const App = () => {
     const [singleQuote, setSingleQuote] = useState(false)
     const [keyQuote, setKeyQuote] = useState(false)
 
-    const [value, setValue] = useState<any>(JSON.stringify(zhihu))
+    const [value, setValue] = useState<any>(JSON.stringify(Array.from({ length: 100 }, () => zhihu)))
     const jsonData = handleData(value)
 
     return (
         <div className="app-container">
 
-            <section className="tool-container">
-                <span className="tool-item">
+            <section className="tool-container" >
+                {/* <span className="tool-item">
                     当前缩进 : <input type="range" min={0} max={20} value={String(indent)} onChange={evt => setIndent(Number(evt.target.value))} />  {indent}
                 </span>
 
@@ -88,25 +83,36 @@ const App = () => {
 
                 <span className="tool-item">
                     对象的 key 是否显示引号：<Switch checked={keyQuote} onChange={setKeyQuote} />
-                </span>
+                </span> */}
 
                 <span className="tool-item">
                     <button onClick={() => setValue(JSON.stringify(zhihu))}>数据1</button>
                     <button onClick={() => setValue(JSON.stringify(ddd))}>数据2</button>
                     <button onClick={() => setValue(JSON.stringify(data3))}>数据3</button>
+                    <button
+                        onClick={() =>
+                            setValue(
+                                JSON.stringify(
+                                    Array.from({ length: 1000 }, () => (data3))
+                                )
+                            )
+                        }
+                    >
+                        1000 条数据 不卡顿
+                    </button>
                 </span>
 
-                <span className="tool-item">
-                    <a href="https://github.com/lichunlei1225/react-json-preview" target="_blank">GitHub地址</a>
-                </span>
+                {/* <span className="tool-item">
+                    <a href="https://github.com/lichunlei1225/react-json-preview" target="_blank" style={{ color: 'blueviolet' }} >GitHub地址</a>
+                </span> */}
 
             </section>
 
 
             <main className="main-container">
-                <section className="textarea-box">
+                {/* <section className="textarea-box">
                     <textarea className="textarea" value={value} placeholder="输入json字符串" onChange={evt => setValue(evt.target.value)} />
-                </section>
+                </section> */}
                 <section className="json-preview-box">
                     <JsonView value={jsonData}
                         showArrayIndex={showArrayIndex}
@@ -118,7 +124,6 @@ const App = () => {
             </main>
 
         </div>
-
     )
 }
 
