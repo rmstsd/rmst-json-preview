@@ -1,82 +1,75 @@
 .virtual-mode {
-    font-family: 'Consolas';
-    font-size: 16px;
+  font-family: 'Consolas';
+  font-size: 16px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  padding: 5px;
 
-    .row-item {
-        display: flex;
-        align-items: center;
+  .row-item {
+    display: flex;
+    align-items: center;
 
-        span {
-            flex-shrink: 0;
-        }
-
-        .indent {
-            width: 40px;
-            height: 100%;
-
-            &::before {
-                content: ' ';
-                display: inline-block;
-                height: 100%;
-                border-right: 1px solid #d5d5d5;
-                margin-left: 3px;
-            }
-        }
-
-        .colon {
-            margin-right: 5px;
-        }
-
-        .key {
-            color: #92278f;
-        }
-
-        .number {
-            color: #25aae2;
-        }
-
-        .string {
-            color: #3ab54a;
-        }
-
-        .boolean {
-            color: #fd2723;
-        }
-
-        .null {
-            color: #df9d00;
-        }
-
-        .object-count {
-            color: #0077ff;
-        }
-
-        .expand-btn {
-            user-select: none;
-            margin-right: 4px;
-            font-size: 14px;
-            height: 14px;
-            width: 14px;
-
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-
-            cursor: pointer;
-            color: #515151;
-            border-radius: 2px;
-            border: 1px solid #cacaca;
-            background-color: #fff;
-            outline: none;
-            transition: .2s;
-
-            vertical-align: middle;
-            line-height: 0.8;
-
-            &:hover {
-                background-color: #ededee;
-            }
-        }
+    span {
+      flex-shrink: 0;
     }
 
+    .indent {
+      height: 100%;
+
+      &::before {
+        content: ' ';
+        display: inline-block;
+        height: 100%;
+        border-right: 1px solid #d5d5d5;
+        margin-left: 3px;
+      }
+    }
+    .colon {
+      margin-right: 5px;
+    }
+    .key {
+      color: #92278f;
+    }
+    .number {
+      color: #25aae2;
+    }
+    .string {
+      color: #2b983a;
+    }
+    .boolean {
+      color: #fd2723;
+    }
+    .null {
+      color: #df9d00;
+    }
+    .object-count {
+      color: #0077ff;
+    }
+    .expand-btn {
+      user-select: none;
+      margin-right: 4px;
+      font-size: 14px;
+      height: 14px;
+      width: 14px;
+
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+
+      cursor: pointer;
+      color: #515151;
+      border-radius: 2px;
+      border: 1px solid #cacaca;
+      background-color: #fff;
+      outline: none;
+      transition: 0.2s;
+
+      vertical-align: middle;
+      line-height: 0.8;
+
+      &:hover {
+        background-color: #ededee;
+      }
+    }
+  }
 }

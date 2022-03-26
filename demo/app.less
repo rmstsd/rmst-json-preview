@@ -1,63 +1,62 @@
 html,
 body,
 #app {
-    margin: 0;
-    height: 100%;
+  margin: 0;
+  height: 100%;
 }
 
 .app-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
-    .tool-container {
-        padding: 10px;
-        border-bottom: 1px solid #b6b6b6;
+  .tool-container {
+    padding: 10px;
+    border-bottom: 1px solid #b6b6b6;
 
-        .tool-item {
-            display: inline-block;
-            padding-right: 30px;
+    .tool-item {
+      display: inline-block;
+      padding-right: 30px;
+    }
+  }
+
+  .main-container {
+    height: 0;
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 30% 70%;
+
+    .textarea-box {
+      height: 100%;
+      overflow: auto;
+      padding: 5px;
+      box-sizing: border-box;
+      border-right: 1px solid #b6b6b6;
+
+      .textarea {
+        width: 100%;
+        height: 100%;
+        display: block;
+        margin: 0;
+        box-sizing: border-box;
+        outline: none;
+        resize: none;
+        border: 1px solid #b6b6b6;
+        transition: 0.2s;
+        border-radius: 2px;
+        padding: 8px;
+
+        &:focus {
+          box-shadow: 0 0 6px 0px #88b0ff;
         }
+      }
     }
 
-    .main-container {
-        height: 0;
-        flex-grow: 1;
-        display: grid;
-        grid-template-columns: repeat(auto-fill);
-
-        .textarea-box {
-            height: 100%;
-            overflow: auto;
-            padding: 5px;
-            box-sizing: border-box;
-            border-right: 1px solid #b6b6b6;
-
-            .textarea {
-                width: 100%;
-                height: 100%;
-                display: block;
-                margin: 0;
-                box-sizing: border-box;
-                outline: none;
-                resize: none;
-                border: 1px solid #b6b6b6;
-                transition: .2s;
-                border-radius: 2px;
-                padding: 8px;
-
-                &:focus {
-                    box-shadow: 0 0 6px 0px #88b0ff;
-                }
-            }
-        }
-
-        .json-preview-box {
-            height: 100%;
-            overflow: auto;
-            padding: 10px;
-            box-sizing: border-box;
-        }
+    .json-preview-box {
+      height: 100%;
+      overflow: auto;
+      padding: 10px;
+      box-sizing: border-box;
     }
-
+  }
 }

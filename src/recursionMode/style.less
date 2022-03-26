@@ -1,87 +1,84 @@
 .view-code {
-    font-family: 'Consolas';
-    font-size: 16px;
+  font-family: 'Consolas';
+  font-size: 16px;
 
-    .key {
-        color: #92278f;
+  .key {
+    color: #92278f;
+  }
+
+  .number {
+    color: #25aae2;
+  }
+
+  .string {
+    color: #3ab54a;
+  }
+
+  .boolean {
+    color: #f98280;
+  }
+
+  .null {
+    color: #f1592a;
+  }
+
+  .expand-wrapper {
+    .expand-btn {
+      margin-right: 4px;
+      font-size: 14px;
+      height: 14px;
+      width: 14px;
+
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+
+      cursor: pointer;
+      color: #515151;
+      border-radius: 2px;
+      border: 1px solid #cacaca;
+      background-color: #fff;
+      outline: none;
+      transition: 0.2s;
+
+      vertical-align: middle;
+      line-height: 0.8;
+
+      &:hover {
+        background-color: #e7e7eb;
+      }
     }
+  }
 
-    .number {
-        color: #25aae2;
+  .object-item {
+    line-height: 1.3;
+    transition: 0.2s;
+    border-left: 1px solid #d0d0d0;
+    margin-left: 7px;
+
+    &:not(:last-of-type)::after {
+      content: ',';
     }
+  }
 
-    .string {
-        color: #3ab54a;
-    }
+  // 数组或者对象长度
+  .object-count {
+    color: #0077ff;
+  }
 
-    .boolean {
-        color: #f98280;
-    }
+  // 数组索引
+  .arr-index {
+    font-size: 14px;
+    color: #545454;
+  }
 
-    .null {
-        color: #f1592a;
-    }
+  // 冒号
+  .colon {
+    margin-right: 5px;
+  }
 
-
-    .expand-wrapper {
-
-        .expand-btn {
-            margin-right: 4px;
-            font-size: 14px;
-            height: 14px;
-            width: 14px;
-
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-
-            cursor: pointer;
-            color: #515151;
-            border-radius: 2px;
-            border: 1px solid #cacaca;
-            background-color: #fff;
-            outline: none;
-            transition: .2s;
-
-            vertical-align: middle;
-            line-height: 0.8;
-
-            &:hover {
-                background-color: #e7e7eb;
-            }
-        }
-    }
-
-    .object-item {
-        line-height: 1.3;
-        transition: .2s;
-        border-left: 1px solid #d0d0d0;
-        margin-left: 7px;
-
-        &:not(:last-of-type)::after {
-            content: ',';
-        }
-    }
-
-    // 数组或者对象长度
-    .object-count {
-        color: #0077ff;
-    }
-
-    // 数组索引
-    .arr-index {
-        font-size: 14px;
-        color: #545454;
-    }
-
-    // 冒号
-    .colon {
-        margin-right: 5px;
-    }
-
-    // 括号
-    .bracket {
-        color: #494949;
-    }
-
+  // 括号
+  .bracket {
+    color: #494949;
+  }
 }
