@@ -11,51 +11,59 @@ body,
   flex-direction: column;
 
   .tool-container {
-    padding: 10px;
-    border-bottom: 1px solid #b6b6b6;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 40px;
+    padding: 0 20px;
+
+    button {
+      cursor: pointer;
+      zoom: 1.2;
+    }
 
     .tool-item {
-      display: inline-block;
-      padding-right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      input {
+        cursor: pointer;
+      }
     }
   }
 
   .main-container {
     height: 0;
     flex-grow: 1;
-    display: grid;
-    grid-template-columns: 30% 70%;
+    display: flex;
+    gap: 10px;
+    padding: 0 0 10px 10px;
 
-    .textarea-box {
+    .textarea {
+      width: 20%;
+      min-width: 200px;
       height: 100%;
-      overflow: auto;
-      padding: 5px;
+      display: block;
+      font-family: 'Consolas';
+      margin: 0;
       box-sizing: border-box;
-      border-right: 1px solid #b6b6b6;
+      outline: none;
+      resize: none;
+      border: 1px solid #b6b6b6;
+      transition: 0.2s;
+      border-radius: 2px;
+      padding: 8px;
 
-      .textarea {
-        width: 100%;
-        height: 100%;
-        display: block;
-        margin: 0;
-        box-sizing: border-box;
-        outline: none;
-        resize: none;
-        border: 1px solid #b6b6b6;
-        transition: 0.2s;
-        border-radius: 2px;
-        padding: 8px;
-
-        &:focus {
-          box-shadow: 0 0 6px 0px #88b0ff;
-        }
+      &:focus {
+        box-shadow: 0 0 6px 0px #b0c2e6;
       }
     }
 
     .json-preview-box {
+      flex-grow: 1;
       height: 100%;
       overflow: auto;
-      padding: 10px;
       box-sizing: border-box;
     }
   }

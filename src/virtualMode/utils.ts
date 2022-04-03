@@ -19,12 +19,19 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
     length: Object.keys(value).length,
     dataType: isArray(value) ? 'Array' : 'Object',
     deep: 0,
-    open: true
+    open: true,
+    rightBracket: isArray(value) ? ']' : '}'
   })
 
   getAllRow(value, deep)
 
-  ans.push({ type: 'rightBracket', key: null, renderValue: isArray(value) ? ']' : '}', rightBracket: isArray(value) ? ']' : '}', deep: 0 } as renderItem)
+  ans.push({
+    type: 'rightBracket',
+    key: null,
+    renderValue: isArray(value) ? ']' : '}',
+    rightBracket: isArray(value) ? ']' : '}',
+    deep: 0
+  } as renderItem)
 
   return ans.map((x, index) => ({ index, ...x }))
 
@@ -80,12 +87,11 @@ export const getAllBracket = (array: renderArray) => {
   const ak = array.filter(item => ['leftBracket', 'key-leftBracket', 'rightBracket'].includes(item.type))
 
   const bracketArray: UBracketArray = []
-
   const stack: number[] = []
 
   ak.forEach(item => {
-    if (['[', '{'].includes(item.renderValue)) stack.push(item.index as number)
-    else bracketArray.push({ startIdx: stack.pop() as number, endIdx: item.index as number, open: true })
+    if (['[', '{'].includes(item.renderValue)) stack.push(item.index)
+    else bracketArray.push({ startIdx: stack.pop(), endIdx: item.index, open: true })
   })
 
   return bracketArray

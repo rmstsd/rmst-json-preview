@@ -27,7 +27,7 @@ const Entry: FC<EntryProps> = props => {
   const [visibleData, setVisibleData] = useState<renderArray>([])
 
   useEffect(() => {
-    const totalList = calcTotal(value, isJsonStrToObject as boolean)
+    const totalList = calcTotal(value, isJsonStrToObject)
     totalListRef.current = totalList
     treatedListRef.current = totalList
 
@@ -46,14 +46,13 @@ const Entry: FC<EntryProps> = props => {
   }
 
   const handleExpand = (clickItem: renderItem) => {
-    const currBracket = matchBracketRef.current.find(item => item.startIdx === clickItem.index) as UBracketItem
+    const currBracket = matchBracketRef.current.find(item => item.startIdx === clickItem.index)
     currBracket.open = !currBracket.open
     clickItem.open = !clickItem.open
     const closeArray = matchBracketRef.current.filter(item => !item.open)
 
     const treatedList = totalListRef.current.filter(
-      tItem =>
-        !closeArray.some(cItem => (tItem.index as number) > cItem.startIdx && (tItem.index as number) <= cItem.endIdx)
+      tItem => !closeArray.some(cItem => tItem.index > cItem.startIdx && tItem.index <= cItem.endIdx)
     )
     treatedListRef.current = treatedList
 
