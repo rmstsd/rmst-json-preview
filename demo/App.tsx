@@ -3,27 +3,32 @@ import JsonView from '../src/index'
 
 import './app.less'
 
-const data3 = {
-  name: '大家闺秀',
-  jsonStr: '[1,2,3,{"aaa":456}]',
-  love: null
-}
+const data = [
+  {
+    name: '人美声甜',
+    age: 24,
+    love: ['eat'],
+    ui: '{"a":1,"b":2,"c":[4,5,6]}'
+  }
+]
 
 const handleData = (str: string) => {
   if (!str) return ''
   try {
     return JSON.parse(str)
   } catch (error) {
-    return String(error)
+    return ['JSON.parse 解析出错']
   }
 }
 
 const App = () => {
   const [indent, setIndent] = useState(2)
   const [isStrToObject, setIsStrToObject] = useState(false)
+  const [isVirtualMode, setIsVirtualMode] = useState(true)
 
-  const [value, setValue] = useState<any>(JSON.stringify(data3))
+  const [value, setValue] = useState<any>(JSON.stringify(data))
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
   useEffect(() => {
     window.addEventListener('message', evt => {
       const { type, value } = evt.data
@@ -54,7 +59,8 @@ const App = () => {
           />
           {indent}
         </span>
-        <span className="tool-item">
+
+        <label className="tool-item">
           json字符串转成对象 :
           <input
             type="checkbox"
@@ -62,7 +68,17 @@ const App = () => {
             onChange={evt => setIsStrToObject(evt.target.checked)}
             style={{ zoom: 1.5 }}
           />
-        </span>
+        </label>
+
+        <label className="tool-item">
+          虚拟滚动 :
+          <input
+            type="checkbox"
+            checked={isVirtualMode}
+            onChange={evt => setIsVirtualMode(evt.target.checked)}
+            style={{ zoom: 1.5 }}
+          />
+        </label>
       </section>
 
       <main className="main-container">
@@ -80,7 +96,8 @@ const App = () => {
             value={jsonData}
             indent={indent}
             isJsonStrToObject={isStrToObject}
-            containerHeight={window.innerHeight - 65}
+            isVirtualMode={isVirtualMode}
+            style={{ height: '100%' }}
           />
         </section>
       </main>

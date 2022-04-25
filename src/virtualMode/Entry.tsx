@@ -11,20 +11,53 @@ type EntryProps = {
   value: object
   indent: number
   isJsonStrToObject?: boolean
-  containerHeight: number
+  containerHeight?: number
+  style?: React.CSSProperties
+  isVirtualMode?: boolean
+}
+
+const useLatestState = <S,>(
+  value: S
+): [React.MutableRefObject<S>, React.Dispatch<React.SetStateAction<S>>] => {
+  const [v, setV] = useState(value)
+  const ref = useRef(v)
+  ref.current = v
+
+  return [ref, setV]
 }
 
 const Entry: FC<EntryProps> = props => {
-  const { value, isJsonStrToObject, indent, containerHeight } = props
-  const count = Math.ceil(containerHeight / rowHeight)
+  const { value, isJsonStrToObject, indent, containerHeight, style, isVirtualMode = true } = props
 
   const totalListRef = useRef<renderArray>([])
   const treatedListRef = useRef<renderArray>([])
   const matchBracketRef = useRef<UBracketArray>([])
   const containerRef = useRef<HTMLDivElement>(null)
-  const [start, setStart] = useState(0)
+
+  const [start, setStart] = useLatestState(0)
+  const [count, setCount] = useLatestState(30)
+
   const [totalHeight, setTotalHeight] = useState(0)
   const [visibleData, setVisibleData] = useState<renderArray>([])
+
+  useEffect(() => {
+    let prevHeight = containerRef.current.clientHeight
+    let firstRender = true
+
+    const ob = new ResizeObserver(() => {
+      if (containerRef.current.clientHeight === prevHeight && !firstRender) return
+
+      prevHeight = containerRef.current.clientHeight
+      firstRender = false
+
+      const nvCount = Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
+      setCount(nvCount)
+
+      handleVisibleData(start.current, nvCount)
+    })
+    ob.observe(containerRef.current)
+    return () => ob.disconnect()
+  }, [])
 
   useEffect(() => {
     const totalList = calcTotal(value, isJsonStrToObject)
@@ -33,16 +66,17 @@ const Entry: FC<EntryProps> = props => {
 
     matchBracketRef.current = getAllBracket(totalList)
 
-    handleVisibleData(start)
+    handleVisibleData(start.current, count.current)
     setTotalHeight(rowHeight * totalList.length)
   }, [value])
 
   const onScroll: UIEventHandler = evt => {
     const { scrollTop } = evt.target as HTMLDivElement
-    const start = Math.floor(scrollTop / rowHeight)
+    const nvStart = Math.floor(scrollTop / rowHeight)
 
-    handleVisibleData(start)
-    setStart(start)
+    setStart(nvStart)
+
+    handleVisibleData(nvStart, count.current)
   }
 
   const handleExpand = (clickItem: renderItem) => {
@@ -56,19 +90,26 @@ const Entry: FC<EntryProps> = props => {
     )
     treatedListRef.current = treatedList
 
-    handleVisibleData(start)
     setTotalHeight(treatedList.length * rowHeight)
+
+    handleVisibleData(start.current, count.current)
   }
 
-  const handleVisibleData = (start: number) => {
+  const handleVisibleData = (start: number, count: number) => {
     setVisibleData(treatedListRef.current.slice(start, start + count))
   }
 
   return (
-    <div className="virtual-mode" ref={containerRef} style={{ height: containerHeight }} onScroll={onScroll}>
-      <section style={{ height: totalHeight, position: 'relative' }}>
-        <main style={{ position: 'absolute', top: 0, transform: `translateY(${start * rowHeight}px)` }}>
-          {visibleData.map(item => (
+    <div className="virtual-mode" ref={containerRef} style={style} onScroll={onScroll}>
+      <section style={{ height: isVirtualMode ? totalHeight : 'initial', position: 'relative' }}>
+        <main
+          style={
+            isVirtualMode
+              ? { position: 'absolute', top: 0, transform: `translateY(${start.current * rowHeight}px)` }
+              : null
+          }
+        >
+          {(isVirtualMode ? visibleData : treatedListRef.current).map(item => (
             <div key={item.index} row-key={item.index} className="row-item" style={{ height: rowHeight }}>
               {Array.from({ length: item.deep }).map((_, idx) => (
                 <span key={idx} className="indent" style={{ width: indent * 20 }} />
@@ -76,7 +117,9 @@ const Entry: FC<EntryProps> = props => {
 
               {item.key && <span className="key">{item.key}</span>}
 
-              {(item.type === 'key-leftBracket' || item.type === 'key-value') && <span className="colon">:</span>}
+              {(item.type === 'key-leftBracket' || item.type === 'key-value') && (
+                <span className="colon">:</span>
+              )}
 
               {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && (
                 <span className="expand-btn" onClick={() => handleExpand(item)}>
@@ -84,9 +127,8 @@ const Entry: FC<EntryProps> = props => {
                 </span>
               )}
 
-              {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) && !item.open && (
-                <span>{item.dataType}</span>
-              )}
+              {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) &&
+                !item.open && <span>{item.dataType}</span>}
               <span className={item.className}>{item.renderValue}</span>
 
               {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && !item.open && (
