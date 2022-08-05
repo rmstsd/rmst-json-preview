@@ -21,10 +21,26 @@ const handleData = (str: string) => {
   }
 }
 
+const useLocalStorageState = <S,>(initialValue: S, key: string) => {
+  const [state, setState] = useState(
+    localStorage[key] ? (JSON.parse(localStorage[key]).value as S) : initialValue
+  )
+
+  const updateCache = (value: S) => {
+    localStorage[key] = JSON.stringify({ value })
+
+    setState(value)
+  }
+
+  return [state, updateCache] as const
+}
+
 const App = () => {
-  const [indent, setIndent] = useState(2)
-  const [isStrToObject, setIsStrToObject] = useState(false)
-  const [isVirtualMode, setIsVirtualMode] = useState(true)
+  const [indent, setIndent] = useLocalStorageState(2, 'ind')
+
+  const [isStrToObject, setIsStrToObject] = useLocalStorageState(false, 'sto')
+  const [isVirtualMode, setIsVirtualMode] = useLocalStorageState(true, 'vir')
+  const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
 
   const [value, setValue] = useState<any>(JSON.stringify(data))
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -79,6 +95,16 @@ const App = () => {
             style={{ zoom: 1.5 }}
           />
         </label>
+
+        <label className="tool-item">
+          显示数组索引 :
+          <input
+            type="checkbox"
+            checked={isShowArrayIndex}
+            onChange={evt => setIsShowArrayIndex(evt.target.checked)}
+            style={{ zoom: 1.5 }}
+          />
+        </label>
       </section>
 
       <main className="main-container">
@@ -97,6 +123,7 @@ const App = () => {
             indent={indent}
             isJsonStrToObject={isStrToObject}
             isVirtualMode={isVirtualMode}
+            isShowArrayIndex={isShowArrayIndex}
             style={{ height: '100%' }}
           />
         </section>

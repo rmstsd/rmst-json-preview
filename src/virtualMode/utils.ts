@@ -11,7 +11,7 @@ const isComplex = (v: any) => typeof v === 'object' && !isNull(v)
 const isPrimary = (v: any) => !isComplex(v)
 
 export function calcTotal(value: object, isJsonStrToObject: boolean, deep: number = 1) {
-  const ans: renderArray = []
+  const ans: IRenderArray = []
   ans.push({
     type: 'leftBracket',
     key: null,
@@ -31,7 +31,7 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
     renderValue: isArray(value) ? ']' : '}',
     rightBracket: isArray(value) ? ']' : '}',
     deep: 0
-  } as renderItem)
+  } as IRenderItem)
 
   return ans.map((x, index) => ({ index, ...x }))
 
@@ -52,7 +52,8 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
             renderValue: typeof mainValue === 'string' ? `'${mainValue}'` : String(mainValue),
             deep,
             isComma: idx !== keys.length - 1,
-            className: mainValue === null ? 'null' : typeof mainValue
+            className: mainValue === null ? 'null' : typeof mainValue,
+            parentDataType: isArray(value) ? 'Array' : 'Object'
           })
         }
       } else handleObject()
@@ -66,7 +67,8 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
           deep,
           open: true,
           length: Object.keys(mainValue).length,
-          dataType: isArray(mainValue) ? 'Array' : 'Object'
+          dataType: isArray(mainValue) ? 'Array' : 'Object',
+          parentDataType: isArray(value) ? 'Array' : 'Object'
         })
 
         getAllRow(mainValue, deep + 1)
@@ -83,10 +85,10 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
   }
 }
 
-export const getAllBracket = (array: renderArray) => {
+export const getAllBracket = (array: IRenderArray) => {
   const ak = array.filter(item => ['leftBracket', 'key-leftBracket', 'rightBracket'].includes(item.type))
 
-  const bracketArray: UBracketArray = []
+  const bracketArray: IBracketArray = []
   const stack: number[] = []
 
   ak.forEach(item => {
@@ -109,6 +111,19 @@ function isJSONStr(str: string) {
       }
     } catch (e) {
       return false
+    }
+  }
+}
+
+export const throttleRaf = func => {
+  let rafId = null
+
+  return () => {
+    if (!rafId) {
+      rafId = requestAnimationFrame(() => {
+        func()
+        rafId = null
+      })
     }
   }
 }

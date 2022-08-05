@@ -1,4 +1,4 @@
-type renderItem = {
+type IRenderItem = {
   type: 'leftBracket' | 'key-leftBracket' | 'rightBracket' | 'key-value' // 括号类型
   key: string | null
   renderValue: any // 渲染到页面的值
@@ -10,8 +10,9 @@ type renderItem = {
   rightBracket?: ']' | '}' // 右括号
   length?: number // 数组或者对象的长度
   dataType?: 'Array' | 'Object'
+  parentDataType?: 'Array' | 'Object'
 }
-type renderArray = renderItem[]
+type IRenderArray = IRenderItem[]
 
-type UBracketItem = { startIdx: number; endIdx: number; open: boolean }
-type UBracketArray = UBracketItem[]
+type IBracketItem = { startIdx: number; endIdx: number; open: boolean }
+type IBracketArray = IBracketItem[]
