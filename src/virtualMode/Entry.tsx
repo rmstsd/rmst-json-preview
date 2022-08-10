@@ -134,7 +134,7 @@ const Entry: FC<IEntryProps> = props => {
 
               {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) &&
                 !item.open && <span>{item.dataType}</span>}
-              <span className={item.className}>{item.renderValue}</span>
+              <span className={`render-value ${item.className}`}>{item.renderValue}</span>
 
               {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && !item.open && (
                 <>
