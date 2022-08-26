@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import type { FC, UIEventHandler } from 'react'
 import { calcTotal, getAllBracket, throttleRaf } from './utils'
 
@@ -14,6 +14,7 @@ type IEntryProps = {
   containerHeight?: number
   style?: React.CSSProperties
   isVirtualMode?: boolean
+  isImmutableHeight?: boolean
   isShowArrayIndex?: boolean
 }
 
@@ -35,10 +36,20 @@ const useUpdate = () => {
 }
 
 const Entry: FC<IEntryProps> = props => {
-  const { value, isJsonStrToObject, indent, style, isVirtualMode, isShowArrayIndex } = props
+  const {
+    value,
+    isJsonStrToObject,
+    indent,
+    style,
+    isVirtualMode,
+    isImmutableHeight = true,
+    isShowArrayIndex
+  } = props
 
   const [start, setStart] = useState(0)
   const [count, setCount] = useState(25)
+
+  const [cacheHeights, setCacheHeights] = useState<number[]>([])
 
   useEffect(() => {
     console.log('eff')
@@ -49,7 +60,7 @@ const Entry: FC<IEntryProps> = props => {
     let prevOffsetHeight = containerRef.current.offsetHeight
     let firstRender = true
 
-    const ob = new ResizeObserver(
+    const obOuter = new ResizeObserver(
       throttleRaf(() => {
         if (containerRef.current.offsetHeight === prevOffsetHeight && !firstRender) return
 
@@ -61,11 +72,40 @@ const Entry: FC<IEntryProps> = props => {
         setCount(nvCount)
       })
     )
-    ob.observe(containerRef.current)
-    return () => ob.disconnect()
+    obOuter.observe(containerRef.current)
+
+    // ----------
+
+    let prevOffsetHeight2 = innerContainerRef.current.offsetHeight
+
+    const obInner = new ResizeObserver(
+      throttleRaf(() => {
+        if (innerContainerRef.current.offsetHeight === prevOffsetHeight2) return
+        prevOffsetHeight2 = innerContainerRef.current.offsetHeight
+
+        const { childNodes } = innerContainerRef.current
+
+        Array.from(childNodes).forEach((nodeItem: HTMLDivElement) => {
+          const index = Number(nodeItem.getAttribute('row-key'))
+          cacheHeights[index] = nodeItem.offsetHeight
+        })
+
+        setCacheHeights([...cacheHeights])
+
+        console.log(6)
+      })
+    )
+    obInner.observe(innerContainerRef.current)
+
+    return () => {
+      obOuter.disconnect()
+      obInner.disconnect()
+    }
   }, [])
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const innerContainerRef = useRef<HTMLElement>(null)
+
   const update = useUpdate()
 
   const tabularTotalList = useMemo(() => calcTotal(value, isJsonStrToObject), [value])
@@ -100,6 +140,12 @@ const Entry: FC<IEntryProps> = props => {
     if (item.parentDataType === 'Array') return isShowArrayIndex
   }
 
+  const getRowStyle = (index: number) => {
+    return isVirtualMode && !isImmutableHeight
+      ? { minHeight: cacheHeights[index] || rowHeight }
+      : { height: rowHeight }
+  }
+
   return (
     <div className="virtual-mode" ref={containerRef} style={style} onScroll={onScroll}>
       <section
@@ -109,6 +155,7 @@ const Entry: FC<IEntryProps> = props => {
         }}
       >
         <main
+          ref={innerContainerRef}
           style={
             isVirtualMode
               ? { position: 'absolute', top: 0, transform: `translateY(${start * rowHeight}px)` }
@@ -116,7 +163,7 @@ const Entry: FC<IEntryProps> = props => {
           }
         >
           {(isVirtualMode ? visibleData : actualTotalList).map(item => (
-            <div key={item.index} row-key={item.index} className="row-item" style={{ height: rowHeight }}>
+            <div key={item.index} row-key={item.index} className="row-item" style={getRowStyle(item.index)}>
               {Array.from({ length: item.deep }).map((_, idx) => (
                 <span key={idx} className="indent" style={{ width: indent * 20 }} />
               ))}
@@ -134,7 +181,12 @@ const Entry: FC<IEntryProps> = props => {
 
               {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) &&
                 !item.open && <span>{item.dataType}</span>}
-              <span className={`render-value ${item.className}`}>{item.renderValue}</span>
+              <span
+                className={`render-value ${item.className}`}
+                style={isVirtualMode && !isImmutableHeight ? { wordBreak: 'break-all' } : null}
+              >
+                {item.renderValue}
+              </span>
 
               {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && !item.open && (
                 <>

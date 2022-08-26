@@ -14,7 +14,7 @@ const devConfig = {
     filename: 'main.js',
     path: path.resolve(__dirname, '../docs')
   },
-  stats: 'errors-warnings',
+  stats: 'errors-only',
   mode: 'development', // 打包为开发模式
   devtool: 'inline-source-map',
   devServer: {
