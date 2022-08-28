@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import type { FC } from 'react'
-import { calcTotal, getAllBracket } from './utils'
+import { clapTabularFromJson, getAllBracket } from './utils'
 
 import VirtualList from '../components/VirtualList'
 
@@ -15,7 +15,7 @@ type IEntryProps = {
   containerHeight?: number
   style?: React.CSSProperties
   isVirtualMode?: boolean
-  isImmutableHeight?: boolean
+  isFixedHeight?: boolean
   isShowArrayIndex?: boolean
 }
 
@@ -35,13 +35,13 @@ const Entry: FC<IEntryProps> = props => {
     indent,
     style,
     isVirtualMode,
-    isImmutableHeight = true,
+    isFixedHeight = true,
     isShowArrayIndex
   } = props
 
   const update = useUpdate()
 
-  const tabularTotalList = useMemo(() => calcTotal(value, isJsonStrToObject), [value])
+  const tabularTotalList = useMemo(() => clapTabularFromJson(value, isJsonStrToObject), [value])
   const matchBracket = useMemo(() => getAllBracket(tabularTotalList), [tabularTotalList])
   const closedArray = matchBracket.filter(o => !o.open)
 
@@ -85,7 +85,7 @@ const Entry: FC<IEntryProps> = props => {
       )}
       <span
         className={`render-value ${item.className}`}
-        style={isVirtualMode && !isImmutableHeight ? { wordBreak: 'break-all' } : null}
+        style={isVirtualMode && !isFixedHeight ? { wordBreak: 'break-all' } : null}
       >
         {item.renderValue}
       </span>

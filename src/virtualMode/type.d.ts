@@ -12,7 +12,5 @@ type IRenderItem = {
   dataType?: 'Array' | 'Object'
   parentDataType?: 'Array' | 'Object'
 }
-type IRenderArray = IRenderItem[]
 
 type IBracketItem = { startIdx: number; endIdx: number; open: boolean }
-type IBracketArray = IBracketItem[]

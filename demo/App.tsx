@@ -150,7 +150,7 @@ const App = () => {
           indent={indent}
           isJsonStrToObject={isStrToObject}
           isVirtualMode={isVirtualMode}
-          isImmutableHeight={isImmutableHeight}
+          isFixedHeight={isImmutableHeight}
           isShowArrayIndex={isShowArrayIndex}
           style={{
             height: '100%',

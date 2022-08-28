@@ -10,8 +10,8 @@ export const isObject = (v: any) => Object.prototype.toString.call(v) === '[obje
 const isComplex = (v: any) => typeof v === 'object' && !isNull(v)
 const isPrimary = (v: any) => !isComplex(v)
 
-export function calcTotal(value: object, isJsonStrToObject: boolean, deep: number = 1) {
-  const ans: IRenderArray = []
+export function clapTabularFromJson(value: object, isJsonStrToObject: boolean, deep: number = 1) {
+  const ans: IRenderItem[] = []
   ans.push({
     type: 'leftBracket',
     key: null,
@@ -31,7 +31,7 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
     renderValue: isArray(value) ? ']' : '}',
     rightBracket: isArray(value) ? ']' : '}',
     deep: 0
-  } as IRenderItem)
+  })
 
   return ans.map((x, index) => ({ index, ...x }))
 
@@ -85,10 +85,10 @@ export function calcTotal(value: object, isJsonStrToObject: boolean, deep: numbe
   }
 }
 
-export const getAllBracket = (array: IRenderArray) => {
+export const getAllBracket = (array: IRenderItem[]) => {
   const ak = array.filter(item => ['leftBracket', 'key-leftBracket', 'rightBracket'].includes(item.type))
 
-  const bracketArray: IBracketArray = []
+  const bracketArray: IBracketItem[] = []
   const stack: number[] = []
 
   ak.forEach(item => {
