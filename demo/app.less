@@ -15,15 +15,18 @@ body,
     align-items: center;
     height: 40px;
     padding: 0 20px;
+    overflow: auto;
 
     button {
       cursor: pointer;
       zoom: 1.2;
+      flex-shrink: 0;
     }
 
     .tool-item {
       display: flex;
       align-items: center;
+      flex-shrink: 0;
       gap: 2px;
       user-select: none;
 
@@ -49,9 +52,9 @@ body,
     padding: 0 0 10px 10px;
 
     .textarea {
-      width: 20%;
-      min-width: 200px;
+      width: 200px;
       height: 100%;
+      flex-shrink: 0;
       display: block;
       font-family: 'Consolas';
       margin: 0;
@@ -66,15 +69,6 @@ body,
       &:focus {
         box-shadow: 0 0 6px 0px #b0c2e6;
       }
-    }
-
-    .json-preview-box {
-      flex-grow: 1;
-      height: 100%;
-      overflow: auto;
-      box-sizing: border-box;
-      border: 1px solid #b5b3b3;
-      padding: 5px 0 5px 5px;
     }
   }
 }

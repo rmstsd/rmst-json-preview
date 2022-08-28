@@ -6,7 +6,12 @@ import './app.less'
 const data = Array.from({ length: 100 }, () => ({
   title: Math.random()
     .toString(36)
-    .repeat(Math.floor(Math.random() * 20))
+    .repeat(Math.floor(Math.random() * 20)),
+  arr: [1, 2, 3],
+  obj: {
+    aaa: 456,
+    bbb: 789
+  }
 }))
 
 const handleData = (str: string) => {
@@ -134,22 +139,28 @@ const App = () => {
           ref={textareaRef}
           value={value}
           onChange={evt => setValue(evt.target.value)}
-          onFocus={() => textareaRef.current.select()}
+          onFocus={() => (textareaRef.current as any).select()}
           className="textarea"
           placeholder="输入json字符串"
           spellCheck={false}
         />
-        <section className="json-preview-box">
-          <JsonView
-            value={jsonData}
-            indent={indent}
-            isJsonStrToObject={isStrToObject}
-            isVirtualMode={isVirtualMode}
-            isImmutableHeight={isImmutableHeight}
-            isShowArrayIndex={isShowArrayIndex}
-            style={{ height: '100%' }}
-          />
-        </section>
+
+        <JsonView
+          value={jsonData}
+          indent={indent}
+          isJsonStrToObject={isStrToObject}
+          isVirtualMode={isVirtualMode}
+          isImmutableHeight={isImmutableHeight}
+          isShowArrayIndex={isShowArrayIndex}
+          style={{
+            height: '100%',
+            flexGrow: 1,
+            boxSizing: 'border-box',
+            border: '1px solid #b5b3b3',
+            padding: '5px 0 5px 5px',
+            ...(!isVirtualMode && { overflow: 'auto' })
+          }}
+        />
       </main>
     </div>
   )
