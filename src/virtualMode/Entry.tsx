@@ -70,6 +70,7 @@ const Entry: FC<IEntryProps> = props => {
       className="row-item"
       style={{ ...(isVirtualMode && !isFixedHeight && { minHeight: rowHeight }) }}
     >
+      <span>{item.index}</span>
       {Array.from({ length: item.deep }).map((_, idx) => (
         <span key={idx} className="indent" style={{ width: indent * 20 }} />
       ))}
@@ -90,7 +91,7 @@ const Entry: FC<IEntryProps> = props => {
       )}
       <span
         className={`render-value ${item.className}`}
-        style={isVirtualMode && !isFixedHeight ? { wordBreak: 'break-all' } : null}
+        style={isVirtualMode && !isFixedHeight ? { wordBreak: 'break-all', lineHeight: 1.3 } : null}
       >
         {item.renderValue}
       </span>

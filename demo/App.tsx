@@ -42,7 +42,7 @@ const App = () => {
 
   const [isStrToObject, setIsStrToObject] = useLocalStorageState(false, 'sto')
   const [isVirtualMode, setIsVirtualMode] = useLocalStorageState(true, 'vir')
-  const [isImmutableHeight, setIsImmutableHeight] = useLocalStorageState(true, 'immutable-height')
+  const [isFixedHeight, setIsFixedHeight] = useLocalStorageState(true, 'immutable-height')
   const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
 
   const [value, setValue] = useState<any>(JSON.stringify(data))
@@ -115,8 +115,8 @@ const App = () => {
               定高:
               <input
                 type="radio"
-                checked={isImmutableHeight}
-                onChange={evt => setIsImmutableHeight(evt.target.checked)}
+                checked={isFixedHeight}
+                onChange={evt => setIsFixedHeight(evt.target.checked)}
                 style={{ zoom: 1.5 }}
               />
             </label>
@@ -125,8 +125,8 @@ const App = () => {
               不定高:
               <input
                 type="radio"
-                checked={!isImmutableHeight}
-                onChange={evt => setIsImmutableHeight(!evt.target.checked)}
+                checked={!isFixedHeight}
+                onChange={evt => setIsFixedHeight(!evt.target.checked)}
                 style={{ zoom: 1.5 }}
               />
             </label>
@@ -150,7 +150,7 @@ const App = () => {
           indent={indent}
           isJsonStrToObject={isStrToObject}
           isVirtualMode={isVirtualMode}
-          isFixedHeight={isImmutableHeight}
+          isFixedHeight={isFixedHeight}
           isShowArrayIndex={isShowArrayIndex}
           style={{
             height: '100%',
