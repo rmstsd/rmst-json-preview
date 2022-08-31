@@ -45,8 +45,11 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [startIndex, setStartIndex] = useState(0)
   const [count, setCount] = useState(0)
-
-  const renderComponent = useUpdate()
+  const scrollTopRef = useRef(0)
+  const innerContainerRef = useRef<HTMLElement>(null)
+  const cacheHeightsRef = useRef<number[]>(
+    Array.from({ length: innerDataSource.length }, () => estimatedRowHeight)
+  )
 
   const handleOb = useEvent(() => {
     const { clientHeight } = containerRef.current
@@ -66,25 +69,17 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
     setCount(Math.ceil(containerRef.current.clientHeight / rowHeight) + 1)
   }, [rowHeight])
 
-  const scrollTopRef = useRef(0)
   const onScroll = () => {
     const { scrollTop } = containerRef.current
     scrollTopRef.current = scrollTop
 
     const startIndex = getStartIndex(scrollTop)
     setStartIndex(startIndex)
-
-    console.log('scroll')
   }
 
   const visibleData = innerDataSource.slice(startIndex, startIndex + count)
 
-  const innerContainerRef = useRef<HTMLElement>(null)
-  const cacheHeightsRef = useRef<number[]>(
-    Array.from({ length: innerDataSource.length }, () => estimatedRowHeight)
-  )
-
-  const getStartIndex = scrollTop => {
+  const getStartIndex = (scrollTop: number) => {
     if (isFixedHeight) return Math.floor(scrollTop / rowHeight)
 
     let tempHeight = 0
@@ -99,6 +94,8 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   }
 
   useLayoutEffect(() => {
+    if (isFixedHeight) return
+
     const ob = new ResizeObserver(() => {
       innerContainerRef.current.childNodes.forEach((rowItemDom: HTMLElement) => {
         const matchDataIndex = Number(rowItemDom.getAttribute('row-key'))
