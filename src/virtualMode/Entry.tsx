@@ -64,7 +64,12 @@ const Entry: FC<IEntryProps> = props => {
   }
 
   const renderRow = (item: IRenderItem) => (
-    <div key={item.index} row-key={item.index} className="row-item">
+    <div
+      key={item.index}
+      row-key={item.index}
+      className="row-item"
+      style={{ ...(isVirtualMode && !isFixedHeight && { minHeight: rowHeight }) }}
+    >
       {Array.from({ length: item.deep }).map((_, idx) => (
         <span key={idx} className="indent" style={{ width: indent * 20 }} />
       ))}
@@ -109,6 +114,7 @@ const Entry: FC<IEntryProps> = props => {
           rowHeight={rowHeight}
           dataSource={actualTotalList}
           renderRow={renderRow}
+          isFixedHeight={isFixedHeight}
         />
       ) : (
         actualTotalList.map(renderRow)
