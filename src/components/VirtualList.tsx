@@ -95,6 +95,20 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
 
   const getCount = () => {
     if (isFixedHeight) return Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
+
+    const startIndex = getStartIndex()
+
+    let tempHeight = 0
+    for (let i = startIndex + 1; i < cacheHeightsRef.current.length; i++) {
+      const curHeight = cacheHeightsRef.current[i]
+      tempHeight += curHeight
+
+      if (tempHeight > containerRef.current.clientHeight) {
+        return i - startIndex + 1
+      }
+    }
+
+    return Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
   }
 
   useEffect(() => {
@@ -106,6 +120,7 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
         cacheHeightsRef.current[matchDataIndex] = rowItemDom.getBoundingClientRect().height
 
         setStartIndex(getStartIndex())
+        setCount(getCount())
       })
     })
 
