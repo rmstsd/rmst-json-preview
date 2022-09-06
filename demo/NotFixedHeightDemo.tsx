@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { faker } from '@faker-js/faker'
 import VirtualList from '../src/components/VirtualList'
+
+import { useRefState } from '../src/hooks'
 
 faker.setLocale('zh_CN')
 
@@ -21,8 +23,21 @@ const users = Array.from({ length: 100 }, createRandomUser)
 
 console.log(users)
 const NotFixedHeightDemo = () => {
+  const [state, render] = useRefState({ startIndex: 0 })
+
   return (
     <div style={{ height: '100%' }}>
+      <button
+        onClick={() => {
+          state.startIndex = 1
+
+          render()
+
+          console.log(state.startIndex)
+        }}
+      >
+        {state.startIndex}
+      </button>
       <VirtualList
         containerHeight={800}
         rowHeight={40}

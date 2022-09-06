@@ -3,6 +3,7 @@ import JsonView from '../src/index'
 import { faker } from '@faker-js/faker'
 
 import './app.less'
+import { useLocalStorageState } from '../src/hooks'
 
 faker.setLocale('zh_CN')
 
@@ -24,20 +25,6 @@ const handleData = (str: string) => {
   } catch (error) {
     return ['JSON.parse 解析出错']
   }
-}
-
-const useLocalStorageState = <S,>(initialValue: S, key: string) => {
-  const [state, setState] = useState(
-    localStorage[key] ? (JSON.parse(localStorage[key]).value as S) : initialValue
-  )
-
-  const updateCache = (value: S) => {
-    localStorage[key] = JSON.stringify({ value })
-
-    setState(value)
-  }
-
-  return [state, updateCache] as const
 }
 
 const App = () => {

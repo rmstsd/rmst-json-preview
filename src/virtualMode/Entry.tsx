@@ -5,6 +5,7 @@ import { clapTabularFromJson, getAllBracket } from './utils'
 import VirtualList from '../components/VirtualList'
 
 import './style.less'
+import { useUpdate } from '../hooks'
 
 const rowHeight = 24
 
@@ -17,15 +18,6 @@ type IEntryProps = {
   isVirtualMode?: boolean
   isFixedHeight?: boolean
   isShowArrayIndex?: boolean
-}
-
-const useUpdate = () => {
-  const [b, sB] = useState(true)
-  const update = () => {
-    sB(!b)
-  }
-
-  return update
 }
 
 const Entry: FC<IEntryProps> = props => {

@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEvent } from '../hooks'
 
 export type extraDataItem = { rowIndex: number }
 type IVirtualListProps<T> = {
@@ -12,24 +13,6 @@ type IVirtualListProps<T> = {
 
   className?: string
   style?: React.CSSProperties
-}
-
-const useUpdate = () => {
-  const [state, setState] = useState(true)
-
-  return () => setState(!state)
-}
-
-const useEvent = <T extends (...args: any[]) => any>(func: T) => {
-  const ref = useRef(func)
-  ref.current = func
-
-  return useCallback(
-    (() => {
-      ref.current()
-    }) as T,
-    []
-  )
 }
 
 const estimatedRowHeight = 100
@@ -88,7 +71,8 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
       tempHeight += curHeight
 
       if (tempHeight > scrollTop) {
-        return i
+        const startIndex = i - 1
+        return startIndex < 0 ? 0 : startIndex
       }
     }
   }
@@ -156,7 +140,11 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
         ...style,
         ...(containerHeight && { height: containerHeight })
       }}
-      onScroll={() => setStartIndex(getStartIndex())}
+      onScroll={() => {
+        const startIndex = getStartIndex()
+        console.log(startIndex)
+        setStartIndex(startIndex)
+      }}
     >
       <div style={{ height: totalHeight }} />
 
