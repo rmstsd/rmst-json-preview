@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react'
+import React from 'react'
 import { faker } from '@faker-js/faker'
 import VirtualList from '../src/components/VirtualList'
 
-import { useRefState } from '../src/hooks'
+import { useStateRef } from '../src/hooks'
 
 faker.setLocale('zh_CN')
 
@@ -23,7 +23,7 @@ const users = Array.from({ length: 100 }, createRandomUser)
 
 console.log(users)
 const NotFixedHeightDemo = () => {
-  const [state, render] = useRefState({ startIndex: 0 })
+  const [state, render] = useStateRef({ startIndex: 0 })
 
   return (
     <div style={{ height: '100%' }}>

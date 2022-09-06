@@ -1,5 +1,5 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useEvent } from '../hooks'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { useEvent, useStateRef } from '../hooks'
 
 export type extraDataItem = { rowIndex: number }
 type IVirtualListProps<T> = {
@@ -28,17 +28,18 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
     [dataSource]
   )
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [startIndex, setStartIndex] = useState(0)
-  const [count, setCount] = useState(20)
+  const [state, render] = useStateRef({ startIndex: 0, count: 20 })
 
+  const containerRef = useRef<HTMLDivElement>(null)
   const innerContainerRef = useRef<HTMLElement>(null)
+
   const cacheHeightsRef = useRef<number[]>(
     Array.from({ length: innerDataSource.length }, () => estimatedRowHeight)
   )
 
   const handleOb = useEvent(() => {
-    setCount(getCount())
+    state.count = getCount()
+    render()
   })
 
   useEffect(() => {
@@ -50,16 +51,18 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
     }
   }, [])
 
-  useEffect(() => {
-    setCount(getCount())
-  }, [rowHeight])
+  // useEffect(() => {
+  //   state.count = getCount()
+  //   render()
+  // }, [rowHeight])
 
   useEffect(() => {
-    setStartIndex(getStartIndex())
-    setCount(getCount())
+    state.startIndex = getStartIndex()
+    state.count = getCount()
+    render()
   }, [isFixedHeight])
 
-  const visibleData = innerDataSource.slice(startIndex, startIndex + count)
+  const visibleData = innerDataSource.slice(state.startIndex, state.startIndex + state.count)
 
   const getStartIndex = () => {
     const { scrollTop } = containerRef.current
@@ -103,8 +106,9 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
         const matchDataIndex = Number(rowItemDom.getAttribute('row-key'))
         cacheHeightsRef.current[matchDataIndex] = rowItemDom.getBoundingClientRect().height
 
-        setStartIndex(getStartIndex())
-        setCount(getCount())
+        state.startIndex = getStartIndex()
+        state.count = getCount()
+        render()
       })
     })
 
@@ -125,9 +129,9 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   })()
 
   const top = (() => {
-    if (isFixedHeight) return startIndex * rowHeight
+    if (isFixedHeight) return state.startIndex * rowHeight
 
-    return cacheHeightsRef.current.slice(0, startIndex).reduce((acc, item) => acc + item, 0)
+    return cacheHeightsRef.current.slice(0, state.startIndex).reduce((acc, item) => acc + item, 0)
   })()
 
   return (
@@ -143,7 +147,9 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
       onScroll={() => {
         const startIndex = getStartIndex()
         console.log(startIndex)
-        setStartIndex(startIndex)
+
+        state.startIndex = startIndex
+        render()
       }}
     >
       <div style={{ height: totalHeight }} />

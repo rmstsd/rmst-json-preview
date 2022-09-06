@@ -14,7 +14,7 @@ export const useLocalStorageState = <S>(initialValue: S, key: string) => {
   return [state, updateCache] as const
 }
 
-export const useRefState = <S extends object>(initialValue: S) => {
+export const useStateRef = <S extends object>(initialValue: S) => {
   const [b, sb] = useState(false)
   const sr = useRef<S>(initialValue)
   const u = () => sb(!b)

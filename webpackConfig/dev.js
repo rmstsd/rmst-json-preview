@@ -16,7 +16,7 @@ const devConfig = {
   },
   stats: 'errors-only',
   mode: 'development', // 打包为开发模式
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   devServer: {
     port: 3008,
     hot: true
