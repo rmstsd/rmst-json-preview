@@ -10,12 +10,12 @@ function createRandomUser(_, index) {
   return {
     index,
     username: faker.internet.userName(),
-    image: faker.image.abstract(
-      Math.floor(Math.random() * 200 + 500),
-      Math.floor(Math.random() * 200 + 200),
-      true
-    ),
-    desc: faker.internet.userName().repeat(Math.floor(Math.random() * 20 + 10))
+    // image: faker.image.abstract(
+    //   Math.floor(Math.random() * 200 + 500),
+    //   Math.floor(Math.random() * 200 + 200),
+    //   true
+    // ),
+    desc: faker.internet.userName().repeat(Math.floor(Math.random() * 40 + 10))
   }
 }
 
@@ -23,21 +23,8 @@ const users = Array.from({ length: 100 }, createRandomUser)
 
 console.log(users)
 const NotFixedHeightDemo = () => {
-  const [state, render] = useStateRef({ startIndex: 0 })
-
   return (
     <div style={{ height: '100%' }}>
-      <button
-        onClick={() => {
-          state.startIndex = 1
-
-          render()
-
-          console.log(state.startIndex)
-        }}
-      >
-        {state.startIndex}
-      </button>
       <VirtualList
         containerHeight={800}
         rowHeight={40}
@@ -48,7 +35,7 @@ const NotFixedHeightDemo = () => {
             <h3>索引: {item.index}</h3>
             <h4>{item.username}</h4>
             <div>{item.desc}</div>
-            <img src={item.image} style={{ marginTop: 10 }} />
+            {/* <img src={item.image} style={{ marginTop: 10 }} /> */}
           </div>
         )}
       />

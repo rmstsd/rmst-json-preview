@@ -74,8 +74,7 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
       tempHeight += curHeight
 
       if (tempHeight > scrollTop) {
-        const startIndex = i - 1
-        return startIndex < 0 ? 0 : startIndex
+        return i
       }
     }
   }
