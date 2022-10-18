@@ -1,3 +1,2 @@
 
-172.16.100.14  wecomtest.naturobot.com
 172.16.100.22  wecomtest.naturobot.com
