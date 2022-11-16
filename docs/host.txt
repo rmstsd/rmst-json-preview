@@ -1,3 +1,4 @@
 
 172.16.100.22  wecomtest.naturobot.com
 172.16.100.22  feishutest.naturobot.com
+172.16.100.22  testdingtalkweb.naturobot.com
