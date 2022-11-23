@@ -21,15 +21,7 @@ type IEntryProps = {
 }
 
 const Entry: FC<IEntryProps> = props => {
-  const {
-    value,
-    isJsonStrToObject,
-    indent,
-    style,
-    isVirtualMode,
-    isFixedHeight = true,
-    isShowArrayIndex
-  } = props
+  const { value, isJsonStrToObject, indent, style, isVirtualMode, isFixedHeight = true, isShowArrayIndex } = props
 
   const update = useUpdate()
 
@@ -60,9 +52,9 @@ const Entry: FC<IEntryProps> = props => {
       key={item.index}
       row-key={item.index}
       className="row-item"
-      style={{ ...(isVirtualMode && !isFixedHeight && { minHeight: rowHeight }) }}
+      style={!isVirtualMode || (isVirtualMode && !isFixedHeight) ? { minHeight: rowHeight } : null}
     >
-      {location.hostname === 'localhost' && <span>{item.index}</span>}
+      <span className="line-numbers">{item.index + 1}</span>
       {Array.from({ length: item.deep }).map((_, idx) => (
         <span key={idx} className="indent" style={{ width: indent * 20 }} />
       ))}
@@ -122,11 +114,6 @@ const Entry: FC<IEntryProps> = props => {
   )
 }
 
-Entry.defaultProps = {
-  isJsonStrToObject: false,
-  indent: 2,
-  isVirtualMode: true,
-  isShowArrayIndex: false
-}
+Entry.defaultProps = { isJsonStrToObject: false, indent: 2, isVirtualMode: true, isShowArrayIndex: false }
 
 export default Entry
