@@ -1,29 +1,30 @@
-import { Dispatch } from "react"
+import { Dispatch } from 'react'
 
 export type UInnerProps = {
-    value?: any,
-    nameKey?: string,
+  value?: any
+  nameKey?: string
 }
 
 export type UConfig = {
-    showArrayIndex?: boolean,
-    indent?: number,
-    singleQuote?: boolean,
-    keyQuote?: boolean
+  showArrayIndex?: boolean
+  indent?: number
+  singleQuote?: boolean
+  keyQuote?: boolean
 }
 
 export type UEntryProps = UInnerProps & UConfig
 
 export type UState = {
-    expandStatus: { [key: string]: boolean }
+  expandStatus: { [key: string]: boolean }
 }
 
 export type UPayload = {
-    oper: 'clear' | 'changeExpand',
-    value?: any
+  oper: 'clear' | 'changeExpand'
+  value?: any
 }
 
 export type UContextValue = {
-    store: UState, config: UConfig, dispatch: Dispatch<UPayload>
+  store: UState
+  config: UConfig
+  dispatch: Dispatch<UPayload>
 }
-
