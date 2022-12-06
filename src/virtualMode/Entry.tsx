@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import type { FC } from 'react'
 import { clapTabularFromJson, getAllBracket } from './utils'
 
@@ -21,7 +21,15 @@ type IEntryProps = {
 }
 
 const Entry: FC<IEntryProps> = props => {
-  const { value, isJsonStrToObject, indent, style, isVirtualMode, isFixedHeight = true, isShowArrayIndex } = props
+  const {
+    value,
+    isJsonStrToObject,
+    indent,
+    style,
+    isVirtualMode,
+    isFixedHeight = true,
+    isShowArrayIndex
+  } = props
 
   const update = useUpdate()
 
