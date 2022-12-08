@@ -6,6 +6,7 @@ import VirtualList from '../components/VirtualList'
 
 import './style.less'
 import { useUpdate } from '../hooks'
+import CopyIcon from './CopyIcon'
 
 const rowHeight = 24
 
@@ -41,12 +42,16 @@ const Entry: FC<IEntryProps> = props => {
     closedArray.length ? !closedArray.some(p => item.index > p.startIdx && item.index <= p.endIdx) : true
   )
 
-  const handleExpand = clickItem => {
+  const handleExpand = (clickItem: IRenderItem) => {
     tabularTotalList[clickItem.index].open = !tabularTotalList[clickItem.index].open
     const target = matchBracket.find(o => o.startIdx === clickItem.index)
     target.open = !target.open
 
     update()
+  }
+
+  const handleCopy = (clickItem: IRenderItem) => {
+    navigator.clipboard.writeText(JSON.stringify(clickItem.mainValue, null, 2))
   }
 
   const getIsShowArrayKey = (item: IRenderItem) => {
@@ -73,9 +78,12 @@ const Entry: FC<IEntryProps> = props => {
       )}
 
       {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && (
-        <span className="expand-btn" onClick={() => handleExpand(item)}>
-          {item.open ? '-' : '+'}
-        </span>
+        <>
+          <span className="expand-btn" onClick={() => handleExpand(item)}>
+            {item.open ? '-' : '+'}
+          </span>
+          <CopyIcon onClick={() => handleCopy(item)} />
+        </>
       )}
 
       {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) && !item.open && (
@@ -101,7 +109,7 @@ const Entry: FC<IEntryProps> = props => {
         </>
       )}
 
-      {item.isComma && <span>,</span>}
+      {(item.isComma || (item.open === false && !item.isLastOne)) && <span>,</span>}
     </div>
   )
 

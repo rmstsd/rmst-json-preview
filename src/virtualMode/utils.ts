@@ -53,7 +53,8 @@ export function clapTabularFromJson(value: object, isJsonStrToObject: boolean, d
             deep,
             isComma: idx !== keys.length - 1,
             className: mainValue === null ? 'null' : typeof mainValue,
-            parentDataType: isArray(value) ? 'Array' : 'Object'
+            parentDataType: isArray(value) ? 'Array' : 'Object',
+            mainValue
           })
         }
       } else handleObject()
@@ -66,9 +67,11 @@ export function clapTabularFromJson(value: object, isJsonStrToObject: boolean, d
           rightBracket: isArray(mainValue) ? ']' : '}',
           deep,
           open: true,
+          isLastOne: idx == keys.length - 1,
           length: Object.keys(mainValue).length,
           dataType: isArray(mainValue) ? 'Array' : 'Object',
-          parentDataType: isArray(value) ? 'Array' : 'Object'
+          parentDataType: isArray(value) ? 'Array' : 'Object',
+          mainValue
         })
 
         getAllRow(mainValue, deep + 1)
