@@ -23,14 +23,19 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   const isFixedHeightRef = useRef(isFixedHeight)
   isFixedHeightRef.current = isFixedHeight
 
-  const innerDataSource = useMemo(() => dataSource.map((item, index) => ({ ...item, rowIndex: index })), [dataSource])
+  const innerDataSource = useMemo(
+    () => dataSource.map((item, index) => ({ ...item, rowIndex: index })),
+    [dataSource]
+  )
 
   const [state, render] = useStateRef({ startIndex: 0, count: 20 })
 
   const containerRef = useRef<HTMLDivElement>(null)
   const innerContainerRef = useRef<HTMLElement>(null)
 
-  const cacheHeightsRef = useRef<number[]>(Array.from({ length: innerDataSource.length }, () => estimatedRowHeight))
+  const cacheHeightsRef = useRef<number[]>(
+    Array.from({ length: innerDataSource.length }, () => estimatedRowHeight)
+  )
 
   const handleOb = useEvent(() => {
     state.count = getCount()

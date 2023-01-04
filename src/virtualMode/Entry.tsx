@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import type { FC } from 'react'
+import React, { useMemo } from 'react'
 import { clapTabularFromJson, getAllBracket } from './utils'
-
 import VirtualList from '../components/VirtualList'
-
-import './style.less'
 import { useUpdate } from '../hooks'
 import CopyIcon from './CopyIcon'
+
+import './style.less'
 
 const rowHeight = 24
 
@@ -21,7 +19,7 @@ type IEntryProps = {
   isShowArrayIndex?: boolean
 }
 
-const Entry: FC<IEntryProps> = props => {
+const Entry: React.FC<IEntryProps> = props => {
   const {
     value,
     isJsonStrToObject,
@@ -34,8 +32,13 @@ const Entry: FC<IEntryProps> = props => {
 
   const update = useUpdate()
 
-  const tabularTotalList = useMemo(() => clapTabularFromJson(value, isJsonStrToObject), [value])
-  const matchBracket = useMemo(() => getAllBracket(tabularTotalList), [tabularTotalList])
+  const { tabularTotalList, matchBracket } = useMemo(() => {
+    const tabularTotalList = clapTabularFromJson(value, isJsonStrToObject)
+    const matchBracket = getAllBracket(tabularTotalList)
+
+    return { tabularTotalList, matchBracket }
+  }, [value])
+
   const closedArray = matchBracket.filter(o => !o.open)
 
   const actualTotalList = tabularTotalList.filter(item =>
