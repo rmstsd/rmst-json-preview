@@ -32,7 +32,10 @@ const reducer = (state: UState, { oper, value }: UPayload) => {
 export const Context = createContext<UContextValue>(undefined as any)
 
 const Entry: FC<UEntryProps> = props => {
-  const { value, ...config } = props
+  const { value, ...config } = {
+    ...{ showArrayIndex: false, indent: 4, singleQuote: false, keyQuote: false },
+    ...props
+  }
   const [store, dispatch] = useReducer(reducer, initVal)
 
   return (
@@ -45,19 +48,18 @@ const Entry: FC<UEntryProps> = props => {
 }
 
 Entry.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.number, PropTypes.string, PropTypes.bool]),
+  value: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object,
+    PropTypes.number,
+    PropTypes.string,
+    PropTypes.bool
+  ]),
 
   showArrayIndex: PropTypes.bool,
   indent: PropTypes.number,
   singleQuote: PropTypes.bool,
   keyQuote: PropTypes.bool
-}
-
-Entry.defaultProps = {
-  showArrayIndex: false,
-  indent: 4,
-  singleQuote: false,
-  keyQuote: false
 }
 
 export default Entry

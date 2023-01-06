@@ -1,8 +1,7 @@
-import React from 'react'
 import { faker } from '@faker-js/faker'
-import VirtualList from '../src/components/VirtualList'
+import VirtualList from './source-code/components/VirtualList'
 
-import { useStateRef } from '../src/hooks'
+import { useStateRef } from './source-code/hooks'
 
 faker.setLocale('zh_CN')
 

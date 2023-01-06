@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useContext } from 'react'
+import React, { FC, Fragment, ReactNode, useContext } from 'react'
 import TObject from './components/TObject'
 import { isNumber, isString, isBoolean, isNull, isObject } from './utils'
 import { Context } from './Entry'
@@ -24,9 +24,10 @@ const ValueView: FC<UInnerProps> = ({ value, nameKey }) => {
   const { config } = useContext(Context)
   const { singleQuote } = config
 
-  const jsx = []
+  const jsx: ReactNode[] = []
 
-  if (typeof value === 'object' && value !== null) jsx.push(<TObject value={value} nameKey={nameKey ? nameKey : ''} />)
+  if (typeof value === 'object' && value !== null)
+    jsx.push(<TObject value={value} nameKey={nameKey ? nameKey : ''} />)
 
   if (isNumber(value)) jsx.push(<span className="number">{value}</span>)
 

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
-import JsonView from '../src/index'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import JsonView from './source-code/index'
 import { faker } from '@faker-js/faker'
 
 import './app.less'
-import { useLocalStorageState } from '../src/hooks'
+import { useLocalStorageState } from './source-code/hooks'
 
 faker.setLocale('zh_CN')
 
@@ -50,7 +50,7 @@ const App = () => {
     setValue(str)
   }
 
-  const jsonData = handleData(value)
+  const jsonData = useMemo(() => handleData(value), [value])
 
   return (
     <div className="app-container">

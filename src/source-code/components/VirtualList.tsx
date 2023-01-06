@@ -62,8 +62,6 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
     render()
   }, [isFixedHeight])
 
-  const visibleData = innerDataSource.slice(state.startIndex, state.startIndex + state.count)
-
   const getStartIndex = () => {
     const { scrollTop } = containerRef.current
     if (isFixedHeight) return Math.floor(scrollTop / rowHeight)
@@ -84,15 +82,15 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
 
     const startIndex = getStartIndex()
 
-    let tempHeight = 0
-    for (let i = startIndex + 1; i < cacheHeightsRef.current.length; i++) {
-      const curHeight = cacheHeightsRef.current[i]
-      tempHeight += curHeight
+    // let tempHeight = 0
+    // for (let i = startIndex + 1; i < cacheHeightsRef.current.length; i++) {
+    //   const curHeight = cacheHeightsRef.current[i]
+    //   tempHeight += curHeight
 
-      if (tempHeight > containerRef.current.clientHeight) {
-        return i - startIndex + 1
-      }
-    }
+    //   if (tempHeight > containerRef.current.clientHeight) {
+    //     return i - startIndex + 1
+    //   }
+    // }
 
     return Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
   }
@@ -132,6 +130,8 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
 
     return cacheHeightsRef.current.slice(0, state.startIndex).reduce((acc, item) => acc + item, 0)
   })()
+
+  const visibleData = innerDataSource.slice(state.startIndex, state.startIndex + state.count)
 
   return (
     <div

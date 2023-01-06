@@ -1,5 +1,0 @@
-
-172.16.101.71  wecomtest.naturobot.com
-172.16.101.71  feishutest.naturobot.com
-172.16.101.71  testdingtalkweb.naturobot.com
-172.16.101.71  app116386.eapps.dingtalkcloud.com

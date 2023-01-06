@@ -28,7 +28,10 @@ const Entry: React.FC<IEntryProps> = props => {
     isVirtualMode,
     isFixedHeight = true,
     isShowArrayIndex
-  } = props
+  } = {
+    ...{ isJsonStrToObject: false, indent: 2, isVirtualMode: true, isShowArrayIndex: false },
+    ...props
+  }
 
   const update = useUpdate()
 
@@ -132,7 +135,5 @@ const Entry: React.FC<IEntryProps> = props => {
     </div>
   )
 }
-
-Entry.defaultProps = { isJsonStrToObject: false, indent: 2, isVirtualMode: true, isShowArrayIndex: false }
 
 export default Entry
