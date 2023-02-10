@@ -111,7 +111,7 @@ const App = () => {
               />
             </label>
 
-            <label className="tool-item">
+            {/* <label className="tool-item">
               不定高:
               <input
                 type="radio"
@@ -119,7 +119,7 @@ const App = () => {
                 onChange={evt => setIsFixedHeight(!evt.target.checked)}
                 style={{ zoom: 1.5 }}
               />
-            </label>
+            </label> */}
           </>
         )}
       </section>
