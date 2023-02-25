@@ -1,4 +1,4 @@
- 172.16.101.24  testdingtalkweb.naturobot.com
+192.168.169.1  testdingtalkweb.naturobot.com
 # 172.16.101.24  wecomtest.naturobot.com
 # 172.16.101.24  feishutest.naturobot.com
 # 172.16.101.24  feishu.naturobot.com
