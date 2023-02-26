@@ -40,7 +40,7 @@ const Entry: React.FC<IEntryProps> = props => {
     const matchBracket = getAllBracket(tabularTotalList)
 
     return { tabularTotalList, matchBracket }
-  }, [value])
+  }, [value, isJsonStrToObject])
 
   const closedArray = matchBracket.filter(o => !o.open)
 
@@ -57,6 +57,7 @@ const Entry: React.FC<IEntryProps> = props => {
   }
 
   const handleCopy = (clickItem: IRenderItem) => {
+    console.log(clickItem)
     navigator.clipboard.writeText(JSON.stringify(clickItem.mainValue, null, 2))
   }
 

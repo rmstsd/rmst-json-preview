@@ -14,7 +14,7 @@ const CopyIcon = props => {
 
   return (
     <span className="copy-icon" onClick={innerOnClick} {...restProps}>
-      <div className={`su-cc ${succ && 'su-cc-active'}`}>6</div>
+      <div className={`su-cc ${succ && 'su-cc-active'}`}>复制成功</div>
       <svg
         fill="none"
         stroke="currentColor"

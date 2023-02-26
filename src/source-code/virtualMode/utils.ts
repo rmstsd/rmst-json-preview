@@ -20,7 +20,8 @@ export function clapTabularFromJson(value: object, isJsonStrToObject: boolean, d
     dataType: isArray(value) ? 'Array' : 'Object',
     deep: 0,
     open: true,
-    rightBracket: isArray(value) ? ']' : '}'
+    rightBracket: isArray(value) ? ']' : '}',
+    mainValue: value
   })
 
   getAllRow(value, deep)

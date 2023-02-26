@@ -8,13 +8,31 @@ import { useLocalStorageState } from './source-code/hooks'
 faker.setLocale('zh_CN')
 
 const data = Array.from({ length: 100 }, () => ({
-  title: Math.random()
-    .toString(36)
-    .repeat(Math.floor(Math.random() * 20)),
-  arr: [1, faker.internet.userName().repeat(Math.floor(Math.random() * 20 + 10)), , 3],
+  title: Math.random().toString(36),
+  // .repeat(Math.floor(Math.random() * 20))
+  jsonString: `{
+      "status": 2,
+      "entrance_msg": "有新权益待开启",
+      "level": 1,
+      "notification": {
+        "new_right_available": 1,
+        "invitation_bubble": 0,
+        "promotion_will_expire": 0,
+        "level_upgrade": 0,
+        "read_count_increased": 0,
+        "apply_pass": 0,
+        "accessed": 0,
+        "experience_can_apply": 0,
+        "custom_msg": 0
+      },
+      "creator_status": 1,
+      "content_cooperation": false,
+      "creator_c_level": 0
+    }`,
+  arr: [1, faker.internet.userName(), 3],
   obj: {
-    aaa: faker.internet.userName().repeat(Math.floor(Math.random() * 20 + 10)),
-    bbb: faker.internet.userName().repeat(Math.floor(Math.random() * 20 + 10))
+    aaa: faker.internet.userName(),
+    bbb: faker.internet.userName()
   }
 }))
 
@@ -101,7 +119,7 @@ const App = () => {
 
         {isVirtualMode && (
           <>
-            <label className="tool-item">
+            {/* <label className="tool-item">
               定高:
               <input
                 type="radio"
@@ -109,7 +127,7 @@ const App = () => {
                 onChange={evt => setIsFixedHeight(evt.target.checked)}
                 style={{ zoom: 1.5 }}
               />
-            </label>
+            </label> */}
 
             {/* <label className="tool-item">
               不定高:
