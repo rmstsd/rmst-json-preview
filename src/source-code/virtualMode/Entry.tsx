@@ -57,7 +57,6 @@ const Entry: React.FC<IEntryProps> = props => {
   }
 
   const handleCopy = (clickItem: IRenderItem) => {
-    console.log(clickItem)
     navigator.clipboard.writeText(JSON.stringify(clickItem.mainValue, null, 2))
   }
 
