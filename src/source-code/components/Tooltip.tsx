@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import Transition from './Transition'
 
 const Tooltip: React.FC<{
   children: React.ReactElement
@@ -12,6 +13,8 @@ const Tooltip: React.FC<{
   const cloneChildren = React.cloneElement(children, { ref })
 
   const [tipStyle, setTipStyle] = useState<React.CSSProperties>({})
+
+  const [isEnd, setIsEnd] = useState(false)
 
   useLayoutEffect(() => {
     if (!visible) return
@@ -30,11 +33,13 @@ const Tooltip: React.FC<{
     <>
       {cloneChildren}
 
-      {visible
+      {visible || isEnd
         ? createPortal(
-            <div className="su-cc" style={{ position: 'absolute', ...tipStyle }} ref={contentRef}>
-              {content}
-            </div>,
+            <Transition visible={visible} setIsEnd={setIsEnd}>
+              <div className="su-cc" style={{ position: 'absolute', ...tipStyle }} ref={contentRef}>
+                {content}
+              </div>
+            </Transition>,
             document.body
           )
         : null}

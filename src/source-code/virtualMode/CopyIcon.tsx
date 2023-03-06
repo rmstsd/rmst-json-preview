@@ -7,8 +7,7 @@ const CopyIcon = props => {
 
   const innerOnClick = () => {
     setSucc(true)
-
-    setTimeout(() => setSucc(false), 500)
+    setTimeout(() => setSucc(false), 700)
 
     onClick()
   }
