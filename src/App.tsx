@@ -117,6 +117,10 @@ const App = () => {
           />
         </label>
 
+        <label className="tool-item" style={{ marginLeft: 'auto' }}>
+          按住shift 将对直接子级open/close
+        </label>
+
         {isVirtualMode && (
           <>
             {/* <label className="tool-item">

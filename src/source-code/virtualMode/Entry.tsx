@@ -48,12 +48,46 @@ const Entry: React.FC<IEntryProps> = props => {
     closedArray.length ? !closedArray.some(p => item.index > p.startIdx && item.index <= p.endIdx) : true
   )
 
-  const handleExpand = (clickItem: IRenderItem) => {
-    tabularTotalList[clickItem.index].open = !tabularTotalList[clickItem.index].open
-    const target = matchBracket.find(o => o.startIdx === clickItem.index)
-    target.open = !target.open
+  const handleExpand = (clickItem: IRenderItem, evt: React.MouseEvent) => {
+    if (evt.shiftKey) {
+      const bracketItem = matchBracket.find(o => o.startIdx === clickItem.index)
+      const tarLi = matchBracket
+        .filter(o => o.startIdx > bracketItem.startIdx && o.endIdx < bracketItem.endIdx)
+        .sort((a, b) => a.startIdx - b.startIdx)
 
+      let last = bracketItem.startIdx
+      const directChildren: IBracketItem[] = []
+      for (const item of tarLi) {
+        if (item.startIdx > last) {
+          directChildren.push(item)
+          last = item.endIdx
+        }
+      }
+
+      if (!directChildren.length) {
+        closeCurrent()
+        update()
+        return
+      }
+
+      const bool = directChildren.some(item => item.open) ? false : true
+      directChildren.forEach(item => {
+        tabularTotalList[item.startIdx].open = bool
+        item.open = bool
+      })
+
+      update()
+      return
+    }
+
+    closeCurrent()
     update()
+
+    function closeCurrent() {
+      tabularTotalList[clickItem.index].open = !tabularTotalList[clickItem.index].open
+      const target = matchBracket.find(o => o.startIdx === clickItem.index)
+      target.open = !target.open
+    }
   }
 
   const handleCopy = (clickItem: IRenderItem) => {
@@ -66,58 +100,62 @@ const Entry: React.FC<IEntryProps> = props => {
     if (item.parentDataType === 'Array') return isShowArrayIndex
   }
 
-  const renderRow = (item: IRenderItem) => (
-    <div
-      key={item.index}
-      row-key={item.index}
-      className="row-item"
-      style={!isVirtualMode || (isVirtualMode && !isFixedHeight) ? { minHeight: rowHeight } : null}
-    >
-      <span className="line-numbers">{item.index + 1}</span>
-      {Array.from({ length: item.deep }).map((_, idx) => (
-        <span key={idx} className="indent" style={{ width: indent * 20 }} />
-      ))}
+  const renderRow = (item: IRenderItem) => {
+    const isShowArrayIndex = getIsShowArrayKey(item)
 
-      {getIsShowArrayKey(item) && <span className="key">{item.key}</span>}
-      {getIsShowArrayKey(item) && (item.type === 'key-leftBracket' || item.type === 'key-value') && (
-        <span className="colon">:</span>
-      )}
-
-      {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && (
-        <>
-          <span className="expand-btn" onClick={() => handleExpand(item)}>
-            {item.open ? '-' : '+'}
-          </span>
-          <CopyIcon onClick={() => handleCopy(item)} />
-        </>
-      )}
-
-      {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) && !item.open && (
-        <span>{item.dataType}</span>
-      )}
-      <span
-        className={`render-value ${item.className || ''}`}
-        style={
-          isVirtualMode
-            ? isFixedHeight
-              ? { whiteSpace: 'nowrap' }
-              : { wordBreak: 'break-all', lineHeight: 1.3 }
-            : null
-        }
+    return (
+      <div
+        key={item.index}
+        row-key={item.index}
+        className="row-item"
+        style={!isVirtualMode || (isVirtualMode && !isFixedHeight) ? { minHeight: rowHeight } : null}
       >
-        {item.renderValue}
-      </span>
+        <span className="line-numbers">{item.index + 1}</span>
+        {Array.from({ length: item.deep }).map((_, idx) => (
+          <span key={idx} className="indent" style={{ width: indent * 20 }} />
+        ))}
 
-      {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && !item.open && (
-        <>
-          <span className="object-count">{item.length}</span>
-          <span>{item.rightBracket}</span>
-        </>
-      )}
+        {isShowArrayIndex && <span className="key">{item.key}</span>}
+        {isShowArrayIndex && (item.type === 'key-leftBracket' || item.type === 'key-value') && (
+          <span className="colon">:</span>
+        )}
 
-      {(item.isComma || (item.open === false && !item.isLastOne)) && <span>,</span>}
-    </div>
-  )
+        {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && (
+          <>
+            <span className="expand-btn" onClick={evt => handleExpand(item, evt)}>
+              {item.open ? '-' : '+'}
+            </span>
+            <CopyIcon onClick={() => handleCopy(item)} />
+          </>
+        )}
+
+        {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !item.open)) && !item.open && (
+          <span>{item.dataType}</span>
+        )}
+        <span
+          className={`render-value ${item.className || ''}`}
+          style={
+            isVirtualMode
+              ? isFixedHeight
+                ? { whiteSpace: 'nowrap' }
+                : { wordBreak: 'break-all', lineHeight: 1.3 }
+              : null
+          }
+        >
+          {item.renderValue}
+        </span>
+
+        {(item.type === 'leftBracket' || item.type === 'key-leftBracket') && !item.open && (
+          <>
+            <span className="object-count">{item.length}</span>
+            <span>{item.rightBracket}</span>
+          </>
+        )}
+
+        {(item.isComma || (item.open === false && !item.isLastOne)) && <span>,</span>}
+      </div>
+    )
+  }
 
   return (
     <div className="virtual-mode" style={{ ...style }}>
