@@ -13,6 +13,8 @@ type IRenderItem = {
   dataType?: 'Array' | 'Object'
   parentDataType?: 'Array' | 'Object'
   mainValue?: unknown
+  highlight?: boolean
+  highlightDeep?: number
 }
 
 type IBracketItem = { startIdx: number; endIdx: number; open: boolean }

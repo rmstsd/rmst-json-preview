@@ -5,11 +5,11 @@ const CopyIcon = props => {
   const { onClick, restProps } = props
   const [succ, setSucc] = useState(false)
 
-  const innerOnClick = () => {
+  const innerOnClick = evt => {
     setSucc(true)
     setTimeout(() => setSucc(false), 700)
 
-    onClick()
+    onClick(evt)
   }
 
   return (

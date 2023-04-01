@@ -131,3 +131,11 @@ export const throttleRaf = func => {
     }
   }
 }
+
+export const isLeftBracketItem = (item: IRenderItem) => {
+  return item.type === 'leftBracket' || item.type === 'key-leftBracket'
+}
+
+export const isRightBracketItem = (item: IRenderItem) => {
+  return item.type === 'rightBracket'
+}
