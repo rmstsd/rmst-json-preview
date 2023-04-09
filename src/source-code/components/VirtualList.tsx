@@ -17,6 +17,8 @@ type IVirtualListProps<T> = {
 
 const estimatedRowHeight = 100
 
+const bufferCount = 20
+
 const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   const { containerHeight, rowHeight, dataSource, renderRow, isFixedHeight = true, className, style } = props
 
@@ -36,6 +38,9 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   const cacheHeightsRef = useRef<number[]>(
     Array.from({ length: innerDataSource.length }, () => estimatedRowHeight)
   )
+
+  const viewStartIndexRef = useRef(0)
+  const viewCountRef = useRef(0)
 
   const handleOb = useEvent(() => {
     state.count = getCount()
@@ -64,7 +69,12 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
 
   const getStartIndex = () => {
     const { scrollTop } = containerRef.current
-    if (isFixedHeight) return Math.floor(scrollTop / rowHeight)
+    if (isFixedHeight) {
+      viewStartIndexRef.current = Math.floor(scrollTop / rowHeight) // 可见区域内的第一个
+
+      const ans = viewStartIndexRef.current - bufferCount
+      return ans < 0 ? 0 : ans
+    }
 
     let tempHeight = 0
     for (let i = 0; i < cacheHeightsRef.current.length; i++) {
@@ -78,7 +88,11 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   }
 
   const getCount = () => {
-    if (isFixedHeight) return Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
+    if (isFixedHeight) {
+      viewCountRef.current = Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
+
+      return viewCountRef.current + bufferCount * 2
+    }
 
     const startIndex = getStartIndex()
 
@@ -146,8 +160,14 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
       onScroll={() => {
         const startIndex = getStartIndex()
 
-        state.startIndex = startIndex
-        render()
+        if (
+          viewStartIndexRef.current + viewCountRef.current >= state.startIndex + state.count ||
+          viewStartIndexRef.current <= state.startIndex
+        ) {
+          state.startIndex = startIndex
+
+          render()
+        }
       }}
     >
       <div style={{ height: totalHeight }} />
