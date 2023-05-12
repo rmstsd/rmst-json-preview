@@ -53,15 +53,12 @@ const App = () => {
   const [isFixedHeight, setIsFixedHeight] = useLocalStorageState(true, 'immutable-height')
   const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
 
-  const [value, setValue] = useState<any>(JSON.stringify(data))
+  const [value, setValue] = useState(JSON.stringify(data, null, 2))
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    window.addEventListener('message', evt => {
-      const { type, value } = evt.data
-      if (type === 'json-preview') setValue(JSON.stringify(value))
-    })
-  }, [])
+    document.title = value?.slice(0, 50)
+  }, [value])
 
   const pasteHandle = async () => {
     const str = await navigator.clipboard.readText()
