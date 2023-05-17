@@ -1,0 +1,11 @@
+{
+  "main": "dist/index.html",
+  "logo": "logo.png",
+  "features": [
+    {
+      "code": "hello",
+      "explain": "世界上最好用的JSON数据预览",
+      "cmds": ["json", "预览"]
+    }
+  ]
+}

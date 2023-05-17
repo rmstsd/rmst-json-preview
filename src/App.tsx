@@ -70,7 +70,7 @@ const App = () => {
   return (
     <div className="app-container">
       <section className="tool-container">
-        <button onClick={pasteHandle}>粘 贴</button>
+        {window.utools ? '将JSON字符串粘贴到下方' : <button onClick={pasteHandle}>粘 贴</button>}
         <span className="tool-item">
           缩进 :
           <input
