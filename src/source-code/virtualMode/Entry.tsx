@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import classNames from 'classnames'
 import Highlighter from 'react-highlight-words'
+
 import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
-import VirtualList from '../components/VirtualList'
+import VirtualList from '../uiComponents/VirtualList'
 import { useUpdate } from '../hooks'
 import CopyIcon from './CopyIcon'
 
 import './style.less'
-import classNames from 'classnames'
+import { IconArrowDown, IconArrowUp, IconClose } from './Svg'
 
 const rowHeight = 24
 
@@ -21,17 +23,19 @@ type IEntryProps = {
   isShowArrayIndex?: boolean
 }
 
+type IHighlightSearch = { rowIndex: number; type: 'key' | 'renderValue'; match: RegExpMatchArray }
+
+const defaultProps = {
+  isJsonStrToObject: false,
+  indent: 2,
+  isVirtualMode: true,
+  isShowArrayIndex: false,
+  isFixedHeight: true
+}
+
 const Entry: React.FC<IEntryProps> = props => {
-  const {
-    value,
-    isJsonStrToObject,
-    indent,
-    style,
-    isVirtualMode,
-    isFixedHeight = true,
-    isShowArrayIndex
-  } = {
-    ...{ isJsonStrToObject: false, indent: 2, isVirtualMode: true, isShowArrayIndex: false },
+  const { value, isJsonStrToObject, indent, style, isVirtualMode, isFixedHeight, isShowArrayIndex } = {
+    ...defaultProps,
     ...props
   }
 
@@ -46,12 +50,19 @@ const Entry: React.FC<IEntryProps> = props => {
 
   const [wd, setWd] = useState('')
   const [hightIndex, setHightIndex] = useState(-1)
-  const [highlightSearchList, setHighlightSearchList] = useState([])
+  const [highlightSearchList, setHighlightSearchList] = useState<IHighlightSearch[]>([])
+  const [searchVisible, setSearchVisible] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     document.addEventListener('keydown', evt => {
       if (evt.ctrlKey && evt.code === 'KeyF') {
         evt.preventDefault()
+        setSearchVisible(true)
+        searchInputRef.current.focus()
+      }
+      if (evt.code === 'Escape') {
+        setSearchVisible(false)
       }
     })
   }, [])
@@ -164,35 +175,60 @@ const Entry: React.FC<IEntryProps> = props => {
     const _wd = evt.target.value
     setWd(_wd)
 
-    const _highlightSearchList = tabularTotalList.reduce((acc, item) => {
-      if (typeof item.key === 'string') {
-        const sr = Array.from(item.key.matchAll(new RegExp(_wd, 'g')))
+    if (!_wd) {
+      setHighlightSearchList([])
+      return
+    }
 
-        if (sr.length) acc.push(...sr.map(o => ({ row: item, match: o })))
+    const _highlightSearchList = tabularTotalList.reduce<IHighlightSearch[]>((acc, item) => {
+      if (typeof item.key === 'string') {
+        const singleMatch = Array.from(item.key.matchAll(new RegExp(_wd, 'g')))
+
+        if (singleMatch.length) {
+          acc.push(...singleMatch.map(o => ({ rowIndex: item.index, type: 'key' as const, match: o })))
+        }
       }
       if (typeof item.renderValue === 'string') {
-        const sr = Array.from(item.renderValue.matchAll(new RegExp(_wd, 'g')))
+        const singleMatch = Array.from(item.renderValue.matchAll(new RegExp(_wd, 'g')))
 
-        if (sr.length) acc.push(...sr.map(o => ({ row: item, match: o })))
+        if (singleMatch.length) {
+          acc.push(
+            ...singleMatch.map(o => ({ rowIndex: item.index, type: 'renderValue' as const, match: o }))
+          )
+        }
       }
 
       return acc
     }, [])
 
-    console.log('_highlightSearchList', _highlightSearchList)
-
+    setHightIndex(0)
     setHighlightSearchList(_highlightSearchList)
   }
 
-  const getActiveIndex = (renderedItem: IRenderItem, type: 'key' | 'renderValue') => {
-    if (!highlightSearchList[hightIndex]) return -1
+  const getActiveIndex = (renderedItem: IRenderItem, type: IHighlightSearch['type']) => {
+    const flatMatchItem = highlightSearchList[hightIndex]
+    if (!searchVisible || !flatMatchItem) return -1
 
-    if (renderedItem.index === highlightSearchList[hightIndex].row.index) {
-      return 0
+    if (renderedItem.index === flatMatchItem.rowIndex) {
+      if (type === 'key') {
+        const beforeIndex = highlightSearchList.findIndex(item => item.rowIndex === renderedItem.index)
+
+        return hightIndex - beforeIndex
+      }
+
+      if (type === 'renderValue') {
+        const beforeIndex = highlightSearchList.findIndex(
+          item => item.rowIndex === renderedItem.index && item.type === 'renderValue'
+        )
+
+        return hightIndex - beforeIndex
+      }
     }
 
     return -1
   }
+
+  const searchWords = searchVisible ? [wd] : []
 
   const renderRow = (item: IRenderItem) => {
     const isShowArrayIndex = getIsShowArrayKey(item)
@@ -223,7 +259,7 @@ const Entry: React.FC<IEntryProps> = props => {
             activeClassName="highlightActive"
             highlightClassName="highlightClassName"
             activeIndex={getActiveIndex(item, 'key')}
-            searchWords={[wd]}
+            searchWords={searchWords}
             autoEscape={true}
             textToHighlight={item.key}
           />
@@ -256,7 +292,7 @@ const Entry: React.FC<IEntryProps> = props => {
               : null
           }
           highlightClassName="highlightClassName"
-          searchWords={[wd]}
+          searchWords={searchWords}
           autoEscape={true}
           textToHighlight={item.renderValue}
         />
@@ -275,23 +311,41 @@ const Entry: React.FC<IEntryProps> = props => {
 
   return (
     <div className="virtual-mode" style={{ ...style }}>
-      <div className="custom-search">
-        <input type="text" value={wd} onChange={searchOnchange} />
-        <span>第{hightIndex}个</span>
-        <span>共{highlightSearchList.length}个</span>
+      <div
+        className={classNames('custom-search-container', searchVisible && 'custom-search-container-visible')}
+      >
+        <input ref={searchInputRef} type="text" value={wd} onChange={searchOnchange} />
+        <span className="count-container">
+          {highlightSearchList.length ? (
+            <>
+              <span>第 {hightIndex + 1} 项</span>, <span>共 {highlightSearchList.length} 项</span>
+            </>
+          ) : (
+            '无结果'
+          )}
+        </span>
         <button
+          className="find-match-btn"
           onClick={() => {
-            setHightIndex(hightIndex - 1)
+            const _v = hightIndex - 1
+            setHightIndex(_v === -1 ? highlightSearchList.length - 1 : _v)
           }}
         >
-          ↑
+          <IconArrowUp />
         </button>
+
         <button
+          className="find-match-btn"
           onClick={() => {
-            setHightIndex(hightIndex + 1)
+            const _v = hightIndex + 1
+            setHightIndex(_v === highlightSearchList.length ? 0 : _v)
           }}
         >
-          ↓
+          <IconArrowDown />
+        </button>
+
+        <button className="find-match-btn" onClick={() => setSearchVisible(false)}>
+          <IconClose />
         </button>
       </div>
 

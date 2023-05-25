@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import VirtualList from './source-code/components/VirtualList'
+import VirtualList from './source-code/uiComponents/VirtualList'
 
 import { useStateRef } from './source-code/hooks'
 
