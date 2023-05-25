@@ -7,12 +7,12 @@ import { useLocalStorageState } from './source-code/hooks'
 
 faker.setLocale('zh_CN')
 
-const data = Array.from({ length: 100 }, () => ({
+const data = Array.from({ length: 1 }, () => ({
   title: Math.random().toString(36),
   // .repeat(Math.floor(Math.random() * 20))
   jsonString: `{
-      "status": 2,
-      "entrance_msg": "有新权益待开启",
+      "ghj": 2,
+      "qwer": "qwer qwer",
       "level": 1,
       "notification": {
         "new_right_available": 1,

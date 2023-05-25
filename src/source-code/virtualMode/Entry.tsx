@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import Highlighter from 'react-highlight-words'
 import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
 import VirtualList from '../components/VirtualList'
 import { useUpdate } from '../hooks'
@@ -42,6 +43,18 @@ const Entry: React.FC<IEntryProps> = props => {
 
     return { tabularTotalList, matchBracket }
   }, [value, isJsonStrToObject])
+
+  const [wd, setWd] = useState('')
+  const [hightIndex, setHightIndex] = useState(-1)
+  const [highlightSearchList, setHighlightSearchList] = useState([])
+
+  useEffect(() => {
+    document.addEventListener('keydown', evt => {
+      if (evt.ctrlKey && evt.code === 'KeyF') {
+        evt.preventDefault()
+      }
+    })
+  }, [])
 
   const closedArray = matchBracket.filter(o => !o.open)
   const renderedTotalList = tabularTotalList.filter(item =>
@@ -147,6 +160,40 @@ const Entry: React.FC<IEntryProps> = props => {
     return matchBracket.find(o => o.startIdx === renderedItem.index)?.open
   }
 
+  const searchOnchange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    const _wd = evt.target.value
+    setWd(_wd)
+
+    const _highlightSearchList = tabularTotalList.reduce((acc, item) => {
+      if (typeof item.key === 'string') {
+        const sr = Array.from(item.key.matchAll(new RegExp(_wd, 'g')))
+
+        if (sr.length) acc.push(...sr.map(o => ({ row: item, match: o })))
+      }
+      if (typeof item.renderValue === 'string') {
+        const sr = Array.from(item.renderValue.matchAll(new RegExp(_wd, 'g')))
+
+        if (sr.length) acc.push(...sr.map(o => ({ row: item, match: o })))
+      }
+
+      return acc
+    }, [])
+
+    console.log('_highlightSearchList', _highlightSearchList)
+
+    setHighlightSearchList(_highlightSearchList)
+  }
+
+  const getActiveIndex = (renderedItem: IRenderItem, type: 'key' | 'renderValue') => {
+    if (!highlightSearchList[hightIndex]) return -1
+
+    if (renderedItem.index === highlightSearchList[hightIndex].row.index) {
+      return 0
+    }
+
+    return -1
+  }
+
   const renderRow = (item: IRenderItem) => {
     const isShowArrayIndex = getIsShowArrayKey(item)
     const currentOpen = getCurrentOpen(item)
@@ -170,7 +217,17 @@ const Entry: React.FC<IEntryProps> = props => {
           />
         ))}
 
-        {isShowArrayIndex && <span className="key">{item.key}</span>}
+        {isShowArrayIndex && (
+          <Highlighter
+            className="key"
+            activeClassName="highlightActive"
+            highlightClassName="highlightClassName"
+            activeIndex={getActiveIndex(item, 'key')}
+            searchWords={[wd]}
+            autoEscape={true}
+            textToHighlight={item.key}
+          />
+        )}
         {isShowArrayIndex && (item.type === 'key-leftBracket' || item.type === 'key-value') && (
           <span className="colon">:</span>
         )}
@@ -186,8 +243,11 @@ const Entry: React.FC<IEntryProps> = props => {
 
         {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !currentOpen)) &&
           !currentOpen && <span>{item.dataType}</span>}
-        <span
+
+        <Highlighter
           className={`render-value ${item.className || ''}`}
+          activeClassName="highlightActive"
+          activeIndex={getActiveIndex(item, 'renderValue')}
           style={
             isVirtualMode
               ? isFixedHeight
@@ -195,9 +255,11 @@ const Entry: React.FC<IEntryProps> = props => {
                 : { wordBreak: 'break-all', lineHeight: 1.3 }
               : null
           }
-        >
-          {item.renderValue}
-        </span>
+          highlightClassName="highlightClassName"
+          searchWords={[wd]}
+          autoEscape={true}
+          textToHighlight={item.renderValue}
+        />
 
         {isLeftBracketItem(item) && !currentOpen && (
           <>
@@ -213,6 +275,26 @@ const Entry: React.FC<IEntryProps> = props => {
 
   return (
     <div className="virtual-mode" style={{ ...style }}>
+      <div className="custom-search">
+        <input type="text" value={wd} onChange={searchOnchange} />
+        <span>第{hightIndex}个</span>
+        <span>共{highlightSearchList.length}个</span>
+        <button
+          onClick={() => {
+            setHightIndex(hightIndex - 1)
+          }}
+        >
+          ↑
+        </button>
+        <button
+          onClick={() => {
+            setHightIndex(hightIndex + 1)
+          }}
+        >
+          ↓
+        </button>
+      </div>
+
       {isVirtualMode ? (
         <VirtualList
           style={{ height: '100%' }}
