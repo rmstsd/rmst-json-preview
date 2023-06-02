@@ -201,6 +201,8 @@ const Entry: React.FC<IEntryProps> = props => {
       return acc
     }, [])
 
+    console.log(_highlightSearchList)
+
     setHightIndex(0)
     setHighlightSearchList(_highlightSearchList)
   }
@@ -226,6 +228,14 @@ const Entry: React.FC<IEntryProps> = props => {
     }
 
     return -1
+  }
+
+  const updateHightIndex = (index: number) => {
+    setHightIndex(index)
+
+    console.log(highlightSearchList[index])
+
+    console.log(matchBracket)
   }
 
   const searchWords = searchVisible ? [wd] : []
@@ -328,7 +338,7 @@ const Entry: React.FC<IEntryProps> = props => {
           className="find-match-btn"
           onClick={() => {
             const _v = hightIndex - 1
-            setHightIndex(_v === -1 ? highlightSearchList.length - 1 : _v)
+            updateHightIndex(_v === -1 ? highlightSearchList.length - 1 : _v)
           }}
         >
           <IconArrowUp />
@@ -338,7 +348,7 @@ const Entry: React.FC<IEntryProps> = props => {
           className="find-match-btn"
           onClick={() => {
             const _v = hightIndex + 1
-            setHightIndex(_v === highlightSearchList.length ? 0 : _v)
+            updateHightIndex(_v === highlightSearchList.length ? 0 : _v)
           }}
         >
           <IconArrowDown />
