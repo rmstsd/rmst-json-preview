@@ -15,7 +15,6 @@ const rowHeight = 24
 type IEntryProps = {
   value: object
   indent: number
-  isJsonStrToObject?: boolean
   containerHeight?: number
   style?: React.CSSProperties
   isVirtualMode?: boolean
@@ -26,7 +25,6 @@ type IEntryProps = {
 type IHighlightSearch = { rowIndex: number; type: 'key' | 'renderValue'; match: RegExpMatchArray }
 
 const defaultProps = {
-  isJsonStrToObject: false,
   indent: 2,
   isVirtualMode: true,
   isShowArrayIndex: false,
@@ -34,7 +32,7 @@ const defaultProps = {
 }
 
 const Entry: React.FC<IEntryProps> = props => {
-  const { value, isJsonStrToObject, indent, style, isVirtualMode, isFixedHeight, isShowArrayIndex } = {
+  const { value, indent, style, isVirtualMode, isFixedHeight, isShowArrayIndex } = {
     ...defaultProps,
     ...props
   }
@@ -42,11 +40,11 @@ const Entry: React.FC<IEntryProps> = props => {
   const update = useUpdate()
 
   const { tabularTotalList, matchBracket } = useMemo(() => {
-    const tabularTotalList = clapTabularFromJson(value, isJsonStrToObject)
+    const tabularTotalList = clapTabularFromJson(value)
     const matchBracket = getAllBracket(tabularTotalList)
 
     return { tabularTotalList, matchBracket }
-  }, [value, isJsonStrToObject])
+  }, [value])
 
   const [wd, setWd] = useState('')
   const [hightIndex, setHightIndex] = useState(-1)
@@ -59,7 +57,16 @@ const Entry: React.FC<IEntryProps> = props => {
       if (evt.ctrlKey && evt.code === 'KeyF') {
         evt.preventDefault()
         setSearchVisible(true)
-        searchInputRef.current.focus()
+
+        const selectionText = window.getSelection().toString()
+        if (selectionText) {
+          searchOnchange(selectionText)
+        }
+
+        setTimeout(() => {
+          searchInputRef.current.focus()
+          searchInputRef.current.select()
+        }, 0)
       }
       if (evt.code === 'Escape') {
         setSearchVisible(false)
@@ -171,8 +178,8 @@ const Entry: React.FC<IEntryProps> = props => {
     return matchBracket.find(o => o.startIdx === renderedItem.index)?.open
   }
 
-  const searchOnchange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    const _wd = evt.target.value
+  const searchOnchange = (value: string) => {
+    const _wd = value
     setWd(_wd)
 
     if (!_wd) {
@@ -200,8 +207,6 @@ const Entry: React.FC<IEntryProps> = props => {
 
       return acc
     }, [])
-
-    console.log(_highlightSearchList)
 
     setHightIndex(0)
     setHighlightSearchList(_highlightSearchList)
@@ -233,9 +238,13 @@ const Entry: React.FC<IEntryProps> = props => {
   const updateHightIndex = (index: number) => {
     setHightIndex(index)
 
-    console.log(highlightSearchList[index])
+    const rowIndex = highlightSearchList[index].rowIndex
+    const shouldOpenBrackets = matchBracket.filter(item => item.startIdx < rowIndex && rowIndex < item.endIdx)
+    shouldOpenBrackets.forEach(item => {
+      item.open = true
+    })
 
-    console.log(matchBracket)
+    update()
   }
 
   const searchWords = searchVisible ? [wd] : []
@@ -324,7 +333,12 @@ const Entry: React.FC<IEntryProps> = props => {
       <div
         className={classNames('custom-search-container', searchVisible && 'custom-search-container-visible')}
       >
-        <input ref={searchInputRef} type="text" value={wd} onChange={searchOnchange} />
+        <input
+          ref={searchInputRef}
+          type="text"
+          value={wd}
+          onChange={evt => searchOnchange(evt.target.value)}
+        />
         <span className="count-container">
           {highlightSearchList.length ? (
             <>
