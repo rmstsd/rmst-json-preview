@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import Highlighter from 'react-highlight-words'
 
 import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
-import VirtualList from '../uiComponents/VirtualList'
+import VirtualList, { IVirtualListRef } from '../uiComponents/VirtualList'
 import { useUpdate } from '../hooks'
 import CopyIcon from './CopyIcon'
 
@@ -78,6 +78,20 @@ const Entry: React.FC<IEntryProps> = props => {
   const renderedTotalList = tabularTotalList.filter(item =>
     closedArray.length ? !closedArray.some(p => item.index > p.startIdx && item.index <= p.endIdx) : true
   )
+
+  const vListRef = useRef<IVirtualListRef>()
+
+  useEffect(() => {
+    if (hightIndex === -1) {
+      return
+    }
+
+    const arrIndex = renderedTotalList.findIndex(
+      item => item.index === highlightSearchList[hightIndex].rowIndex
+    )
+
+    vListRef.current?.scrollToIndexIfNeed(arrIndex)
+  }, [hightIndex])
 
   const handleExpand = (clickItem: IRenderItem, evt: React.MouseEvent) => {
     evt.stopPropagation()
@@ -375,6 +389,7 @@ const Entry: React.FC<IEntryProps> = props => {
 
       {isVirtualMode ? (
         <VirtualList
+          ref={vListRef}
           style={{ height: '100%' }}
           rowHeight={rowHeight}
           dataSource={renderedTotalList}

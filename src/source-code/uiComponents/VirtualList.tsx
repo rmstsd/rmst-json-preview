@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { useEvent, useStateRef } from '../hooks'
 
 export type extraDataItem = { rowIndex: number }
@@ -6,20 +6,25 @@ type IVirtualListProps<T> = {
   containerHeight?: number
   rowHeight?: number
   dataSource: T[]
-
   renderRow: (item: T & extraDataItem) => React.ReactElement<any, 'div'>
-
   isFixedHeight?: boolean
-
   className?: string
   style?: React.CSSProperties
+}
+
+export type IVirtualListRef = {
+  scrollToIndex: (index: number) => void
+  scrollToIndexIfNeed: (index: number) => void
 }
 
 const estimatedRowHeight = 100
 
 const bufferCount = 20
 
-const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
+const VirtualList = <T extends object>(
+  props: IVirtualListProps<T>,
+  ref?: React.RefObject<IVirtualListRef>
+) => {
   const { containerHeight, rowHeight, dataSource, renderRow, isFixedHeight = true, className, style } = props
 
   const isFixedHeightRef = useRef(isFixedHeight)
@@ -66,6 +71,18 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
     state.count = getCount()
     render()
   }, [isFixedHeight])
+
+  useImperativeHandle(ref, () => ({
+    scrollToIndex: (index: number) => {
+      containerRef.current.scrollTop = index * rowHeight
+    },
+    scrollToIndexIfNeed: (index: number) => {
+      if (state.startIndex < index && index < state.startIndex + state.count) {
+        return
+      }
+      containerRef.current.scrollTop = index * rowHeight
+    }
+  }))
 
   const getStartIndex = () => {
     const { scrollTop } = containerRef.current
@@ -185,4 +202,4 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   )
 }
 
-export default VirtualList
+export default forwardRef(VirtualList)
