@@ -47,6 +47,8 @@ const VirtualList = <T extends object>(
   const viewStartIndexRef = useRef(0)
   const viewCountRef = useRef(0)
 
+  const viewCountLesserRef = useRef(0) // 较少的可见数量 用于手动滚动到指定行
+
   const handleOb = useEvent(() => {
     state.count = getCount()
     render()
@@ -77,10 +79,7 @@ const VirtualList = <T extends object>(
       containerRef.current.scrollTop = index * rowHeight
     },
     scrollToIndexIfNeed: (index: number) => {
-      if (state.startIndex < index && index < state.startIndex + state.count) {
-        return
-      }
-      containerRef.current.scrollTop = index * rowHeight
+      containerRef.current.scrollTop = (index - Math.floor(viewCountLesserRef.current / 2)) * rowHeight
     }
   }))
 
@@ -107,6 +106,8 @@ const VirtualList = <T extends object>(
   const getCount = () => {
     if (isFixedHeight) {
       viewCountRef.current = Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
+
+      viewCountLesserRef.current = Math.floor(containerRef.current.clientHeight / rowHeight)
 
       return viewCountRef.current + bufferCount * 2
     }

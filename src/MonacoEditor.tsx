@@ -2,22 +2,27 @@ import React, { FC, useEffect, useRef } from 'react'
 
 import * as monaco from 'monaco-editor'
 
-self.MonacoEnvironment = {
-  getWorker: function (workerId, label) {
-    const getWorkerModule = (moduleUrl, label) => {
-      // @ts-ignore
-      return new Worker(self.MonacoEnvironment.getWorkerUrl(moduleUrl), {
-        name: label,
-        type: 'module'
-      })
-    }
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
-    switch (label) {
-      case 'json':
-        return getWorkerModule('/monaco-editor/esm/vs/language/json/json.worker?worker', label)
-      default:
-        return getWorkerModule('/monaco-editor/esm/vs/editor/editor.worker?worker', label)
+self.MonacoEnvironment = {
+  getWorker(_, label) {
+    if (label === 'json') {
+      return new jsonWorker()
     }
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return new cssWorker()
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return new htmlWorker()
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return new tsWorker()
+    }
+    return new editorWorker()
   }
 }
 

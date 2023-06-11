@@ -64,7 +64,7 @@ const Entry: React.FC<IEntryProps> = props => {
         }
 
         setTimeout(() => {
-          searchInputRef.current.focus()
+          searchInputRef.current?.focus()
           searchInputRef.current.select()
         }, 0)
       }
@@ -82,7 +82,7 @@ const Entry: React.FC<IEntryProps> = props => {
   const vListRef = useRef<IVirtualListRef>()
 
   useEffect(() => {
-    if (hightIndex === -1) {
+    if (hightIndex === -1 || !highlightSearchList[hightIndex]) {
       return
     }
 
@@ -386,6 +386,15 @@ const Entry: React.FC<IEntryProps> = props => {
           <IconClose />
         </button>
       </div>
+
+      {/* <button
+        style={{ position: 'absolute', top: 0, left: 200, zIndex: 10 }}
+        onClick={() => {
+          vListRef.current?.scrollToIndexIfNeed(60)
+        }}
+      >
+        滚动到
+      </button> */}
 
       {isVirtualMode ? (
         <VirtualList
