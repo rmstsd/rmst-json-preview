@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import JsonView from './source-code/index'
+import { Button, Checkbox, Radio, Slider, Space, Divider, Input } from '@arco-design/web-react'
 import { faker } from '@faker-js/faker'
 
-import './app.less'
 import { useLocalStorageState } from './source-code/hooks'
+import MonacoEditor from './MonacoEditor'
+import JsonView from './source-code/index'
+import { isComplex } from './source-code/virtualMode/utils'
 
 faker.setLocale('zh_CN')
 
@@ -11,11 +13,11 @@ const data = Array.from({ length: 100 }, () => ({
   title: Math.random().toString(36),
   // .repeat(Math.floor(Math.random() * 20))
   jsonString: `{
-      "status": 2,
-      "entrance_msg": "有新权益待开启",
+      "ghj": 2,
+      "qwer": "qwer qwer",
       "level": 1,
       "notification": {
-        "new_right_available": 1,
+        "qwer": 1,
         "invitation_bubble": 0,
         "promotion_will_expire": 0,
         "level_upgrade": 0,
@@ -36,13 +38,33 @@ const data = Array.from({ length: 100 }, () => ({
   }
 }))
 
-const handleData = (str: string) => {
+// 整体的
+const entiretyJsonStringToObject = (str: string) => {
   if (!str) return ''
   try {
     return JSON.parse(str)
   } catch (error) {
-    return ['JSON.parse 解析出错']
+    return ['JSON格式错误']
   }
+}
+
+// 内部的
+const internalJsonStringToObject = (value: any) => {
+  for (const key in value) {
+    if (typeof value[key] === 'string') {
+      try {
+        value[key] = JSON.parse(value[key])
+      } catch (error) {
+        // 失败就保持原值
+      }
+    }
+
+    if (isComplex(value[key])) {
+      internalJsonStringToObject(value[key])
+    }
+  }
+
+  return value
 }
 
 const App = () => {
@@ -52,9 +74,10 @@ const App = () => {
   const [isVirtualMode, setIsVirtualMode] = useLocalStorageState(true, 'vir')
   const [isFixedHeight, setIsFixedHeight] = useLocalStorageState(true, 'immutable-height')
   const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
+  const [previewStyle, setPreviewStyle] = useLocalStorageState<'monaco' | 'me'>('monaco', 'previewStyle')
 
   const [value, setValue] = useState(JSON.stringify(data, null, 2))
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const textareaRef = useRef(null)
 
   useEffect(() => {
     document.title = value?.slice(0, 50)
@@ -65,111 +88,115 @@ const App = () => {
     setValue(str)
   }
 
-  const jsonData = useMemo(() => handleData(value), [value])
+  const jsonObject = useMemo(() => {
+    const ans = entiretyJsonStringToObject(value)
+
+    if (isStrToObject) {
+      return internalJsonStringToObject(ans)
+    }
+
+    return ans
+  }, [value, isStrToObject])
+
+  const headerTools = (
+    <section className="tool-container">
+      <Space split={<Divider type="vertical" style={{ margin: '0 5px', borderColor: '#c5c5c5' }} />}>
+        {window.utools ? (
+          '将JSON字符串粘贴到下方'
+        ) : (
+          <Button onClick={pasteHandle} type="primary" size="mini" style={{ marginRight: 10 }}>
+            粘 贴
+          </Button>
+        )}
+
+        <Radio.Group value={previewStyle} onChange={setPreviewStyle}>
+          <Radio value="monaco" style={{ marginRight: 10 }}>
+            monaco
+          </Radio>
+          <Radio value="me" style={{ marginRight: 10 }}>
+            me
+          </Radio>
+        </Radio.Group>
+
+        <span style={{ marginLeft: 5 }}>
+          缩进
+          <Slider
+            value={indent}
+            onChange={setIndent}
+            max={4}
+            min={1}
+            showTicks
+            style={{ width: 60, marginLeft: 10 }}
+          />
+        </span>
+
+        <Checkbox checked={isStrToObject} onChange={setIsStrToObject}>
+          json字符串转对象
+        </Checkbox>
+
+        {previewStyle === 'me' && (
+          <>
+            <Checkbox checked={isShowArrayIndex} onChange={setIsShowArrayIndex}>
+              数组索引
+            </Checkbox>
+
+            <Checkbox checked={isVirtualMode} onChange={setIsVirtualMode}>
+              虚拟滚动
+            </Checkbox>
+          </>
+        )}
+      </Space>
+
+      <div style={{ marginLeft: 'auto' }}>按住shift 将对直接子级open/close</div>
+    </section>
+  )
 
   return (
     <div className="app-container">
-      <section className="tool-container">
-        {window.utools ? '将JSON字符串粘贴到下方' : <button onClick={pasteHandle}>粘 贴</button>}
-        <span className="tool-item">
-          缩进 :
-          <input
-            type="range"
-            min={1}
-            max={3}
-            value={String(indent)}
-            onChange={evt => setIndent(Number(evt.target.value))}
-            style={{ width: 50 }}
-          />
-          {indent}
-        </span>
-
-        <label className="tool-item">
-          json字符串转对象:
-          <input
-            type="checkbox"
-            checked={isStrToObject}
-            onChange={evt => setIsStrToObject(evt.target.checked)}
-            style={{ zoom: 1.5 }}
-          />
-        </label>
-
-        <label className="tool-item">
-          数组索引:
-          <input
-            type="checkbox"
-            checked={isShowArrayIndex}
-            onChange={evt => setIsShowArrayIndex(evt.target.checked)}
-            style={{ zoom: 1.5 }}
-          />
-        </label>
-
-        <label className="tool-item">
-          虚拟滚动:
-          <input
-            type="checkbox"
-            checked={isVirtualMode}
-            onChange={evt => setIsVirtualMode(evt.target.checked)}
-            style={{ zoom: 1.5 }}
-          />
-        </label>
-
-        <label className="tool-item" style={{ marginLeft: 'auto' }}>
-          按住shift 将对直接子级open/close
-        </label>
-
-        {isVirtualMode && (
-          <>
-            {/* <label className="tool-item">
-              定高:
-              <input
-                type="radio"
-                checked={isFixedHeight}
-                onChange={evt => setIsFixedHeight(evt.target.checked)}
-                style={{ zoom: 1.5 }}
-              />
-            </label> */}
-
-            {/* <label className="tool-item">
-              不定高:
-              <input
-                type="radio"
-                checked={!isFixedHeight}
-                onChange={evt => setIsFixedHeight(!evt.target.checked)}
-                style={{ zoom: 1.5 }}
-              />
-            </label> */}
-          </>
-        )}
-      </section>
+      {headerTools}
 
       <main className="main-container">
-        <textarea
+        <Input.TextArea
           ref={textareaRef}
           value={value}
-          onChange={evt => setValue(evt.target.value)}
-          onFocus={() => (textareaRef.current as any).select()}
+          onChange={setValue}
           className="textarea"
           placeholder="输入json字符串"
           spellCheck={false}
-        />
-
-        <JsonView
-          value={jsonData}
-          indent={indent}
-          isJsonStrToObject={isStrToObject}
-          isVirtualMode={isVirtualMode}
-          isFixedHeight={isFixedHeight}
-          isShowArrayIndex={isShowArrayIndex}
-          style={{
-            height: '100%',
-            flexGrow: 1,
-            boxSizing: 'border-box',
-            border: '1px solid #b5b3b3',
-            padding: '5px 0 5px 5px',
-            ...(!isVirtualMode && { overflow: 'auto' })
+          onFocus={() => {
+            textareaRef.current?.dom.select()
           }}
         />
+
+        {previewStyle === 'monaco' ? (
+          <MonacoEditor
+            value={JSON.stringify(jsonObject, null, indent)}
+            style={{
+              height: '100%',
+              width: 'calc(100% - 210px)',
+              marginLeft: 10,
+              boxSizing: 'border-box',
+              border: '1px solid #b5b3b3'
+            }}
+          />
+        ) : (
+          <JsonView
+            value={jsonObject}
+            indent={indent}
+            isVirtualMode={isVirtualMode}
+            isFixedHeight={isFixedHeight}
+            isShowArrayIndex={isShowArrayIndex}
+            style={{
+              height: '100%',
+              width: 'calc(100% - 210px)',
+              marginLeft: 10,
+              boxSizing: 'border-box',
+              border: '1px solid #b5b3b3',
+              padding: '5px 0 5px 5px',
+              ...(isVirtualMode ? {} : { overflow: 'auto' })
+            }}
+          />
+        )}
       </main>
     </div>
   )

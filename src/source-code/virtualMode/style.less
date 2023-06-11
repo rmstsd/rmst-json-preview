@@ -1,6 +1,74 @@
+.arco-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -2px;
+  stroke: currentColor;
+}
+
 .virtual-mode {
   font-family: 'Consolas';
   font-size: 16px;
+  position: relative;
+  overflow: hidden;
+
+  .custom-search-container {
+    transform: translateY(calc(-100% - 10px));
+    transition: all 0.3s;
+    position: absolute;
+    top: 0;
+    z-index: 5;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    border-left: 1px solid #d4d4d4;
+    border-right: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+    box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.16);
+    background-color: #f3f3f3;
+
+    input {
+      padding: 4px 6px;
+      border: 2px solid transparent;
+      resize: none;
+      outline: none;
+      font-size: 13px;
+      height: 30px;
+      box-sizing: border-box;
+
+      &:hover,
+      &:focus {
+        border-color: #5b9bf5;
+      }
+    }
+
+    .count-container {
+      display: inline-block;
+      width: 180px;
+      text-align: right;
+      margin-right: 5px;
+    }
+    .find-match-btn {
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      &:hover {
+        background-color: #dedede;
+      }
+    }
+  }
+
+  .custom-search-container-visible {
+    transform: translateY(0);
+  }
+
+  .highlightClassName {
+    background-color: yellow;
+  }
+
+  .highlightActive {
+    background-color: #f48f42;
+  }
 
   .line-numbers {
     width: 30px;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { useEvent, useStateRef } from '../hooks'
 
 export type extraDataItem = { rowIndex: number }
@@ -6,20 +6,25 @@ type IVirtualListProps<T> = {
   containerHeight?: number
   rowHeight?: number
   dataSource: T[]
-
   renderRow: (item: T & extraDataItem) => React.ReactElement<any, 'div'>
-
   isFixedHeight?: boolean
-
   className?: string
   style?: React.CSSProperties
+}
+
+export type IVirtualListRef = {
+  scrollToIndex: (index: number) => void
+  scrollToIndexIfNeed: (index: number) => void
 }
 
 const estimatedRowHeight = 100
 
 const bufferCount = 20
 
-const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
+const VirtualList = <T extends object>(
+  props: IVirtualListProps<T>,
+  ref?: React.RefObject<IVirtualListRef>
+) => {
   const { containerHeight, rowHeight, dataSource, renderRow, isFixedHeight = true, className, style } = props
 
   const isFixedHeightRef = useRef(isFixedHeight)
@@ -41,6 +46,8 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
 
   const viewStartIndexRef = useRef(0)
   const viewCountRef = useRef(0)
+
+  const viewCountLesserRef = useRef(0) // 较少的可见数量 用于手动滚动到指定行
 
   const handleOb = useEvent(() => {
     state.count = getCount()
@@ -67,6 +74,15 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
     render()
   }, [isFixedHeight])
 
+  useImperativeHandle(ref, () => ({
+    scrollToIndex: (index: number) => {
+      containerRef.current.scrollTop = index * rowHeight
+    },
+    scrollToIndexIfNeed: (index: number) => {
+      containerRef.current.scrollTop = (index - Math.floor(viewCountLesserRef.current / 2)) * rowHeight
+    }
+  }))
+
   const getStartIndex = () => {
     const { scrollTop } = containerRef.current
     if (isFixedHeight) {
@@ -90,6 +106,8 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   const getCount = () => {
     if (isFixedHeight) {
       viewCountRef.current = Math.ceil(containerRef.current.clientHeight / rowHeight) + 1
+
+      viewCountLesserRef.current = Math.floor(containerRef.current.clientHeight / rowHeight)
 
       return viewCountRef.current + bufferCount * 2
     }
@@ -185,4 +203,4 @@ const VirtualList = <T extends object>(props: IVirtualListProps<T>) => {
   )
 }
 
-export default VirtualList
+export default forwardRef(VirtualList)

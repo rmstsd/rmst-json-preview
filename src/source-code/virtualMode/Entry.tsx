@@ -1,18 +1,20 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import classNames from 'classnames'
+import Highlighter from 'react-highlight-words'
+
 import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
-import VirtualList from '../components/VirtualList'
+import VirtualList, { IVirtualListRef } from '../uiComponents/VirtualList'
 import { useUpdate } from '../hooks'
 import CopyIcon from './CopyIcon'
 
 import './style.less'
-import classNames from 'classnames'
+import { IconArrowDown, IconArrowUp, IconClose } from './Svg'
 
 const rowHeight = 24
 
 type IEntryProps = {
   value: object
   indent: number
-  isJsonStrToObject?: boolean
   containerHeight?: number
   style?: React.CSSProperties
   isVirtualMode?: boolean
@@ -20,33 +22,76 @@ type IEntryProps = {
   isShowArrayIndex?: boolean
 }
 
+type IHighlightSearch = { rowIndex: number; type: 'key' | 'renderValue'; match: RegExpMatchArray }
+
+const defaultProps = {
+  indent: 2,
+  isVirtualMode: true,
+  isShowArrayIndex: false,
+  isFixedHeight: true
+}
+
 const Entry: React.FC<IEntryProps> = props => {
-  const {
-    value,
-    isJsonStrToObject,
-    indent,
-    style,
-    isVirtualMode,
-    isFixedHeight = true,
-    isShowArrayIndex
-  } = {
-    ...{ isJsonStrToObject: false, indent: 2, isVirtualMode: true, isShowArrayIndex: false },
+  const { value, indent, style, isVirtualMode, isFixedHeight, isShowArrayIndex } = {
+    ...defaultProps,
     ...props
   }
 
   const update = useUpdate()
 
   const { tabularTotalList, matchBracket } = useMemo(() => {
-    const tabularTotalList = clapTabularFromJson(value, isJsonStrToObject)
+    const tabularTotalList = clapTabularFromJson(value)
     const matchBracket = getAllBracket(tabularTotalList)
 
     return { tabularTotalList, matchBracket }
-  }, [value, isJsonStrToObject])
+  }, [value])
+
+  const [wd, setWd] = useState('')
+  const [hightIndex, setHightIndex] = useState(-1)
+  const [highlightSearchList, setHighlightSearchList] = useState<IHighlightSearch[]>([])
+  const [searchVisible, setSearchVisible] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    document.addEventListener('keydown', evt => {
+      if (evt.ctrlKey && evt.code === 'KeyF') {
+        evt.preventDefault()
+        setSearchVisible(true)
+
+        const selectionText = window.getSelection().toString()
+        if (selectionText) {
+          searchOnchange(selectionText)
+        }
+
+        setTimeout(() => {
+          searchInputRef.current?.focus()
+          searchInputRef.current.select()
+        }, 0)
+      }
+      if (evt.code === 'Escape') {
+        setSearchVisible(false)
+      }
+    })
+  }, [])
 
   const closedArray = matchBracket.filter(o => !o.open)
   const renderedTotalList = tabularTotalList.filter(item =>
     closedArray.length ? !closedArray.some(p => item.index > p.startIdx && item.index <= p.endIdx) : true
   )
+
+  const vListRef = useRef<IVirtualListRef>()
+
+  useEffect(() => {
+    if (hightIndex === -1 || !highlightSearchList[hightIndex]) {
+      return
+    }
+
+    const arrIndex = renderedTotalList.findIndex(
+      item => item.index === highlightSearchList[hightIndex].rowIndex
+    )
+
+    vListRef.current?.scrollToIndexIfNeed(arrIndex)
+  }, [hightIndex])
 
   const handleExpand = (clickItem: IRenderItem, evt: React.MouseEvent) => {
     evt.stopPropagation()
@@ -147,6 +192,77 @@ const Entry: React.FC<IEntryProps> = props => {
     return matchBracket.find(o => o.startIdx === renderedItem.index)?.open
   }
 
+  const searchOnchange = (value: string) => {
+    const _wd = value
+    setWd(_wd)
+
+    if (!_wd) {
+      setHighlightSearchList([])
+      return
+    }
+
+    const _highlightSearchList = tabularTotalList.reduce<IHighlightSearch[]>((acc, item) => {
+      if (typeof item.key === 'string') {
+        const singleMatch = Array.from(item.key.matchAll(new RegExp(_wd, 'g')))
+
+        if (singleMatch.length) {
+          acc.push(...singleMatch.map(o => ({ rowIndex: item.index, type: 'key' as const, match: o })))
+        }
+      }
+      if (typeof item.renderValue === 'string') {
+        const singleMatch = Array.from(item.renderValue.matchAll(new RegExp(_wd, 'g')))
+
+        if (singleMatch.length) {
+          acc.push(
+            ...singleMatch.map(o => ({ rowIndex: item.index, type: 'renderValue' as const, match: o }))
+          )
+        }
+      }
+
+      return acc
+    }, [])
+
+    setHightIndex(0)
+    setHighlightSearchList(_highlightSearchList)
+  }
+
+  const getActiveIndex = (renderedItem: IRenderItem, type: IHighlightSearch['type']) => {
+    const flatMatchItem = highlightSearchList[hightIndex]
+    if (!searchVisible || !flatMatchItem) return -1
+
+    if (renderedItem.index === flatMatchItem.rowIndex) {
+      if (type === 'key') {
+        const beforeIndex = highlightSearchList.findIndex(item => item.rowIndex === renderedItem.index)
+
+        return hightIndex - beforeIndex
+      }
+
+      if (type === 'renderValue') {
+        const beforeIndex = highlightSearchList.findIndex(
+          item => item.rowIndex === renderedItem.index && item.type === 'renderValue'
+        )
+
+        return hightIndex - beforeIndex
+      }
+    }
+
+    return -1
+  }
+
+  const updateHightIndex = (index: number) => {
+    setHightIndex(index)
+
+    const rowIndex = highlightSearchList[index].rowIndex
+    const shouldOpenBrackets = matchBracket.filter(item => item.startIdx < rowIndex && rowIndex < item.endIdx)
+    shouldOpenBrackets.forEach(item => {
+      item.open = true
+    })
+
+    update()
+  }
+
+  const searchWords = searchVisible ? [wd] : []
+
   const renderRow = (item: IRenderItem) => {
     const isShowArrayIndex = getIsShowArrayKey(item)
     const currentOpen = getCurrentOpen(item)
@@ -170,7 +286,17 @@ const Entry: React.FC<IEntryProps> = props => {
           />
         ))}
 
-        {isShowArrayIndex && <span className="key">{item.key}</span>}
+        {isShowArrayIndex && (
+          <Highlighter
+            className="key"
+            activeClassName="highlightActive"
+            highlightClassName="highlightClassName"
+            activeIndex={getActiveIndex(item, 'key')}
+            searchWords={searchWords}
+            autoEscape={true}
+            textToHighlight={item.key}
+          />
+        )}
         {isShowArrayIndex && (item.type === 'key-leftBracket' || item.type === 'key-value') && (
           <span className="colon">:</span>
         )}
@@ -186,8 +312,11 @@ const Entry: React.FC<IEntryProps> = props => {
 
         {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !currentOpen)) &&
           !currentOpen && <span>{item.dataType}</span>}
-        <span
+
+        <Highlighter
           className={`render-value ${item.className || ''}`}
+          activeClassName="highlightActive"
+          activeIndex={getActiveIndex(item, 'renderValue')}
           style={
             isVirtualMode
               ? isFixedHeight
@@ -195,9 +324,11 @@ const Entry: React.FC<IEntryProps> = props => {
                 : { wordBreak: 'break-all', lineHeight: 1.3 }
               : null
           }
-        >
-          {item.renderValue}
-        </span>
+          highlightClassName="highlightClassName"
+          searchWords={searchWords}
+          autoEscape={true}
+          textToHighlight={item.renderValue}
+        />
 
         {isLeftBracketItem(item) && !currentOpen && (
           <>
@@ -213,8 +344,61 @@ const Entry: React.FC<IEntryProps> = props => {
 
   return (
     <div className="virtual-mode" style={{ ...style }}>
+      <div
+        className={classNames('custom-search-container', searchVisible && 'custom-search-container-visible')}
+      >
+        <input
+          ref={searchInputRef}
+          type="text"
+          value={wd}
+          onChange={evt => searchOnchange(evt.target.value)}
+        />
+        <span className="count-container">
+          {highlightSearchList.length ? (
+            <>
+              <span>第 {hightIndex + 1} 项</span>, <span>共 {highlightSearchList.length} 项</span>
+            </>
+          ) : (
+            '无结果'
+          )}
+        </span>
+        <button
+          className="find-match-btn"
+          onClick={() => {
+            const _v = hightIndex - 1
+            updateHightIndex(_v === -1 ? highlightSearchList.length - 1 : _v)
+          }}
+        >
+          <IconArrowUp />
+        </button>
+
+        <button
+          className="find-match-btn"
+          onClick={() => {
+            const _v = hightIndex + 1
+            updateHightIndex(_v === highlightSearchList.length ? 0 : _v)
+          }}
+        >
+          <IconArrowDown />
+        </button>
+
+        <button className="find-match-btn" onClick={() => setSearchVisible(false)}>
+          <IconClose />
+        </button>
+      </div>
+
+      {/* <button
+        style={{ position: 'absolute', top: 0, left: 200, zIndex: 10 }}
+        onClick={() => {
+          vListRef.current?.scrollToIndexIfNeed(60)
+        }}
+      >
+        滚动到
+      </button> */}
+
       {isVirtualMode ? (
         <VirtualList
+          ref={vListRef}
           style={{ height: '100%' }}
           rowHeight={rowHeight}
           dataSource={renderedTotalList}

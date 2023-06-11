@@ -7,10 +7,10 @@ export const isArray = (v: any) => Object.prototype.toString.call(v) === '[objec
 
 export const isObject = (v: any) => Object.prototype.toString.call(v) === '[object Object]'
 
-const isComplex = (v: any) => typeof v === 'object' && !isNull(v)
-const isPrimary = (v: any) => !isComplex(v)
+export const isComplex = (v: any) => typeof v === 'object' && !isNull(v)
+export const isPrimary = (v: any) => !isComplex(v)
 
-export function clapTabularFromJson(value: object, isJsonStrToObject: boolean, deep: number = 1) {
+export function clapTabularFromJson(value: object, deep: number = 1) {
   const ans: IRenderItem[] = []
   ans.push({
     type: 'leftBracket',
@@ -43,22 +43,19 @@ export function clapTabularFromJson(value: object, isJsonStrToObject: boolean, d
 
       // 如果是原始类型
       if (isPrimary(mainValue)) {
-        if (isJsonStrToObject && isJSONStr(mainValue)) {
-          mainValue = JSON.parse(mainValue)
-          handleObject()
-        } else {
-          ans.push({
-            type: 'key-value',
-            key,
-            renderValue: typeof mainValue === 'string' ? `'${mainValue}'` : String(mainValue),
-            deep,
-            isComma: idx !== keys.length - 1,
-            className: mainValue === null ? 'null' : typeof mainValue,
-            parentDataType: isArray(value) ? 'Array' : 'Object',
-            mainValue
-          })
-        }
-      } else handleObject()
+        ans.push({
+          type: 'key-value',
+          key,
+          renderValue: typeof mainValue === 'string' ? `'${mainValue}'` : String(mainValue),
+          deep,
+          isComma: idx !== keys.length - 1,
+          className: mainValue === null ? 'null' : typeof mainValue,
+          parentDataType: isArray(value) ? 'Array' : 'Object',
+          mainValue
+        })
+      } else {
+        handleObject()
+      }
 
       function handleObject() {
         ans.push({
@@ -101,22 +98,6 @@ export const getAllBracket = (array: IRenderItem[]) => {
   })
 
   return bracketArray
-}
-
-// 是否为 json 字符串
-function isJSONStr(str: string) {
-  if (typeof str == 'string') {
-    try {
-      var obj = JSON.parse(str)
-      if (typeof obj == 'object' && obj) {
-        return true
-      } else {
-        return false
-      }
-    } catch (e) {
-      return false
-    }
-  }
 }
 
 export const throttleRaf = func => {

@@ -3,6 +3,7 @@ body,
 #root {
   margin: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .app-container {
@@ -17,30 +18,20 @@ body,
     padding: 0 20px;
     overflow: auto;
 
-    button {
-      cursor: pointer;
-      zoom: 1.2;
+    .arco-space-item {
       flex-shrink: 0;
     }
 
-    .tool-item {
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-      gap: 2px;
-      user-select: none;
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+      background-color: #f5f5f5;
+    }
 
-      position: relative;
-
-      &::before {
-        content: '|';
-        margin: 0 7px;
-        color: #c6c6c6;
-      }
-
-      input {
-        cursor: pointer;
-      }
+    /* 修改滚动条滑块的颜色和圆角 */
+    &::-webkit-scrollbar-thumb {
+      background-color: #dadada;
+      border-radius: 10px;
     }
   }
 
@@ -48,23 +39,19 @@ body,
     height: 0;
     flex-grow: 1;
     display: flex;
-    gap: 10px;
-    padding: 0 0 10px 10px;
+    margin-bottom: 5px;
 
     .textarea {
       width: 200px;
       height: 100%;
       flex-shrink: 0;
-      display: block;
       font-family: 'Consolas';
-      margin: 0;
       box-sizing: border-box;
-      outline: none;
       resize: none;
-      border: 1px solid #b6b6b6;
+      background-color: #fff;
+      border-color: #b6b6b6;
       transition: 0.2s;
       border-radius: 2px;
-      padding: 8px;
 
       &:focus {
         box-shadow: 0 0 6px 0px #b0c2e6;
