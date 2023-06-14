@@ -53,8 +53,11 @@ const Entry: React.FC<IEntryProps> = props => {
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    searchOnchange(wd)
+  }, [value])
+
+  useEffect(() => {
     document.addEventListener('keydown', evt => {
-      return
       if (evt.ctrlKey && evt.code === 'KeyF') {
         evt.preventDefault()
         setSearchVisible(true)
@@ -387,15 +390,6 @@ const Entry: React.FC<IEntryProps> = props => {
           <IconClose />
         </button>
       </div>
-
-      {/* <button
-        style={{ position: 'absolute', top: 0, left: 200, zIndex: 10 }}
-        onClick={() => {
-          vListRef.current?.scrollToIndexIfNeed(60)
-        }}
-      >
-        滚动到
-      </button> */}
 
       {isVirtualMode ? (
         <VirtualList

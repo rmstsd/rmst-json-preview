@@ -2,11 +2,11 @@ import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } fr
 import { useEvent, useStateRef } from '../hooks'
 
 export type extraDataItem = { rowIndex: number }
-type IVirtualListProps<T> = {
+type VirtualListProps<T = any> = {
   containerHeight?: number
   rowHeight?: number
   dataSource: T[]
-  renderRow: (item: T & extraDataItem) => React.ReactElement<any, 'div'>
+  renderRow: (item: T) => React.ReactElement
   isFixedHeight?: boolean
   className?: string
   style?: React.CSSProperties
@@ -21,8 +21,8 @@ const estimatedRowHeight = 100
 
 const bufferCount = 20
 
-const VirtualList = <T extends object>(
-  props: IVirtualListProps<T>,
+const VirtualList = <T extends Record<string, unknown>>(
+  props: VirtualListProps<T>,
   ref?: React.RefObject<IVirtualListRef>
 ) => {
   const { containerHeight, rowHeight, dataSource, renderRow, isFixedHeight = true, className, style } = props
@@ -79,7 +79,9 @@ const VirtualList = <T extends object>(
       containerRef.current.scrollTop = index * rowHeight
     },
     scrollToIndexIfNeed: (index: number) => {
-      containerRef.current.scrollTop = (index - Math.floor(viewCountLesserRef.current / 2)) * rowHeight
+      const top = (index - Math.floor(viewCountLesserRef.current / 2)) * rowHeight
+
+      containerRef.current.scrollTo({ top })
     }
   }))
 
@@ -203,4 +205,10 @@ const VirtualList = <T extends object>(
   )
 }
 
-export default forwardRef(VirtualList)
+type ChildComponentType = <T = any>(
+  props: VirtualListProps<T> & { ref?: React.Ref<IVirtualListRef> }
+) => React.ReactElement
+
+const VirtualListComponent = forwardRef(VirtualList) as ChildComponentType
+
+export default VirtualListComponent
