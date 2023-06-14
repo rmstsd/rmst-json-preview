@@ -54,6 +54,7 @@ const Entry: React.FC<IEntryProps> = props => {
 
   useEffect(() => {
     document.addEventListener('keydown', evt => {
+      return
       if (evt.ctrlKey && evt.code === 'KeyF') {
         evt.preventDefault()
         setSearchVisible(true)
