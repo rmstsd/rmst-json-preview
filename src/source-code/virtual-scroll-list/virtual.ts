@@ -20,7 +20,7 @@ export default class Virtual {
 
   param
   callUpdate
-  sizes
+  sizes: Map<string | number, number>
   firstRangeTotalSize
   firstRangeAverageSize
   fixedSizeValue

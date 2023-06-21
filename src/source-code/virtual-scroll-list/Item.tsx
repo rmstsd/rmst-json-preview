@@ -42,6 +42,10 @@ const Item = props => {
       dispatchSizeChange()
     })
     resizeObserver.observe(ref.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
   }, [])
 
   const getCurrentSize = () => {

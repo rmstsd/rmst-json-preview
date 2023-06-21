@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Item from './Item'
 import Virtual from './virtual'
-import { useUpdate } from '../hooks'
 
 const EVENT_TYPE = {
   ITEM: 'item_resize',
@@ -20,6 +19,8 @@ const defaultProps = {
 }
 
 const VirtualList = props => {
+  const combineProps = Object.assign({}, defaultProps, props)
+
   const {
     dataKey,
     dataSources,
@@ -31,9 +32,7 @@ const VirtualList = props => {
     className,
     style,
     wrapStyle
-  } = Object.assign({}, defaultProps, props)
-
-  console.log('render')
+  } = combineProps
 
   const isHorizontal = direction === 'horizontal'
   const directionKey = isHorizontal ? 'scrollLeft' : 'scrollTop'
@@ -62,8 +61,6 @@ const VirtualList = props => {
         uniqueIds: getUniqueIdFromDataSources()
       },
       range => {
-        console.log(range)
-
         setRange(range)
       }
     )
@@ -160,6 +157,8 @@ const VirtualList = props => {
       <div className="wrap" {...{ role: 'group' }} style={wrapperStyle}>
         {getRenderSlots()}
       </div>
+
+      {/* <div ref={shepherdRef} style={{ width: isHorizontal ? '0px' : '100%', height: isHorizontal ? '100%' : '0px' }}></div> */}
     </div>
   )
 }

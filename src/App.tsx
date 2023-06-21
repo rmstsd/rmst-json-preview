@@ -223,11 +223,10 @@ const Test = () => {
     <div>
       <VirtualList
         className="list"
-        style={{ height: 600, overflow: 'auto' }}
+        style={{ height: 600, overflow: 'auto', border: '2px solid #333' }}
         dataKey="id"
         dataSources={dataSources}
         dataComponent={ItemComponent}
-        estimateSize={60}
       />
     </div>
   )
