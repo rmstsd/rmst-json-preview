@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Checkbox, Radio, Slider, Space, Divider, Input } from '@arco-design/web-react'
 import { faker } from '@faker-js/faker'
 
-import { useLocalStorageState } from './source-code/hooks'
+import { useLocalStorageState, useUpdate } from './source-code/hooks'
 import MonacoEditor from './MonacoEditor'
 import JsonView from './source-code/index'
 import { isComplex } from './source-code/virtualMode/utils'
+import VirtualList from './source-code/virtual-scroll-list'
 
 faker.setLocale('zh_CN')
 
@@ -202,4 +203,43 @@ const App = () => {
   )
 }
 
-export default App
+// export default App
+
+const TOTAL_COUNT = 10000
+
+const dataSources = []
+let count = TOTAL_COUNT
+while (count--) {
+  const index = TOTAL_COUNT - count
+  dataSources.push({
+    index,
+    name: index + '-name',
+    id: index
+  })
+}
+
+const Test = () => {
+  return (
+    <div>
+      <VirtualList
+        className="list"
+        style={{ height: 600, overflow: 'auto' }}
+        dataKey="id"
+        dataSources={dataSources}
+        dataComponent={ItemComponent}
+        estimateSize={60}
+      />
+    </div>
+  )
+}
+
+const ItemComponent = item => {
+  return (
+    <div className="item-inner">
+      <span># {item.index}</span>
+      <span style={{ marginLeft: 40 }}>{item.source.name}</span>
+    </div>
+  )
+}
+
+export default Test
