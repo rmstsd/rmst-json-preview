@@ -30,8 +30,8 @@ const ItemProps = {
   }
 }
 
-const Item = props => {
-  const { component: Component, index, source, uniqueKey, horizontal, event, onItemSizeChange } = props
+const useWrapper = props => {
+  const { uniqueKey, horizontal, event, onItemSizeChange } = props
 
   const shapeKey = horizontal ? 'offsetWidth' : 'offsetHeight'
 
@@ -54,15 +54,33 @@ const Item = props => {
 
   const hasInitial = false
 
-  // tell parent current size identify by unqiue key
   const dispatchSizeChange = () => {
     onItemSizeChange(event, uniqueKey, getCurrentSize(), hasInitial)
   }
 
+  return ref
+}
+
+const Item = props => {
+  const { component: Component, index, source, uniqueKey } = props
+
+  const ref = useWrapper(props)
+
   const cprops = { source, index }
+
   return (
-    <div ref={ref} key={uniqueKey} {...{ role: 'listitem', index }} style={{ height: 50 }}>
+    <div ref={ref} key={uniqueKey} {...{ role: 'listitem', index }}>
       <Component {...cprops} />
+    </div>
+  )
+}
+
+export const Slot = props => {
+  const ref = useWrapper(props)
+
+  return (
+    <div ref={ref} className="slot">
+      {props.children}
     </div>
   )
 }

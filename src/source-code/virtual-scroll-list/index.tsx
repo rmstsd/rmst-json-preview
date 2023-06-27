@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import Item from './Item'
+import Item, { Slot } from './Item'
 import Virtual from './virtual'
 
-const EVENT_TYPE = {
-  ITEM: 'item_resize',
-  SLOT: 'slot_resize'
+const Event_Type = {
+  Item: 'item_resize',
+  Slot: 'slot_resize'
+}
+
+const Slot_Type = {
+  Header: 'thead',
+  Footer: 'tfoot'
 }
 
 const defaultProps = {
@@ -31,7 +36,9 @@ const VirtualList = props => {
     pageMode,
     className,
     style,
-    wrapStyle
+    wrapStyle,
+    header,
+    footer
   } = combineProps
 
   const isHorizontal = direction === 'horizontal'
@@ -106,14 +113,13 @@ const VirtualList = props => {
     const offset = getOffset()
 
     virtualRef.current.handleScroll(offset)
-    // this.emitEvent(offset, clientSize, scrollSize, evt)
   }
 
   const onItemSizeChange = (event, id, size) => {
     virtualRef.current.saveSize(id, size)
-
-    // this.$emit('resized', id, size)
   }
+
+  const universalProps = { horizontal: isHorizontal, onItemSizeChange }
 
   const getRenderSlots = () => {
     const slots = []
@@ -128,14 +134,13 @@ const VirtualList = props => {
         if (typeof uniqueKey === 'string' || typeof uniqueKey === 'number') {
           const props = {
             index,
-            event: EVENT_TYPE.ITEM,
-            horizontal: isHorizontal,
+            event: Event_Type.Item,
             uniqueKey: uniqueKey,
             source: dataSourceItem,
             component: dataComponent
           }
 
-          slots.push(<Item {...props} key={uniqueKey} onItemSizeChange={onItemSizeChange} />)
+          slots.push(<Item {...props} {...universalProps} key={uniqueKey} />)
         } else {
           console.warn(`Cannot get the data-key '${dataKey}' from data-sources.`)
         }
@@ -154,9 +159,21 @@ const VirtualList = props => {
 
   return (
     <div ref={rootRef} onScroll={onScroll} className={className} style={style}>
+      {header && (
+        <Slot {...universalProps} uniqueKey={Slot_Type.Header} event={Event_Type.Slot}>
+          {header}
+        </Slot>
+      )}
+
       <div className="wrap" {...{ role: 'group' }} style={wrapperStyle}>
         {getRenderSlots()}
       </div>
+
+      {footer && (
+        <Slot {...universalProps} uniqueKey={Slot_Type.Footer} event={Event_Type.Slot}>
+          {footer}
+        </Slot>
+      )}
 
       {/* <div ref={shepherdRef} style={{ width: isHorizontal ? '0px' : '100%', height: isHorizontal ? '100%' : '0px' }}></div> */}
     </div>

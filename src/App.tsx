@@ -205,7 +205,7 @@ const App = () => {
 
 // export default App
 
-const TOTAL_COUNT = 10000
+const TOTAL_COUNT = 200
 
 const dataSources = []
 let count = TOTAL_COUNT
@@ -219,22 +219,34 @@ while (count--) {
 }
 
 const Test = () => {
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setData(dataSources)
+    }, 1000)
+  }, [])
+
   return (
     <div>
       <VirtualList
         className="list"
         style={{ height: 600, overflow: 'auto', border: '2px solid #333' }}
         dataKey="id"
-        dataSources={dataSources}
+        dataSources={data}
         dataComponent={ItemComponent}
+        header={<div style={{ height: 100 }}>header</div>}
+        footer={<div style={{ height: 80 }}>footer</div>}
       />
     </div>
   )
 }
 
 const ItemComponent = item => {
+  const randomHeight = useMemo(() => 10 + Math.random() * 100, [])
+
   return (
-    <div className="item-inner">
+    <div className="item-inner" style={{ height: randomHeight, border: '1px solid #333' }}>
       <span># {item.index}</span>
       <span style={{ marginLeft: 40 }}>{item.source.name}</span>
     </div>

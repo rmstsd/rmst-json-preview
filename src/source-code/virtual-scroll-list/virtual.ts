@@ -2,34 +2,36 @@
  * virtual list core calculating center
  */
 
-const DIRECTION_TYPE = {
-  FRONT: 'FRONT', // scroll up or left
-  BEHIND: 'BEHIND' // scroll down or right
+enum Direction_Type {
+  Front = 'Front', // scroll up or left
+  Behind = 'Behind' // scroll down or right
 }
-const CALC_TYPE = {
-  INIT: 'INIT',
-  FIXED: 'FIXED',
-  DYNAMIC: 'DYNAMIC'
+enum Calc_Type {
+  Init = 'Init',
+  Fixed = 'Fixed',
+  Dynamic = 'Dynamic'
 }
-const LEADING_BUFFER = 0
+const Leading_Buffer = 0
+
+type CallUpdate = (range: Virtual['range']) => void
 
 export default class Virtual {
-  constructor(param, callUpdate) {
+  constructor(param, callUpdate: CallUpdate) {
     this.init(param, callUpdate)
   }
 
   param
-  callUpdate
+  callUpdate: CallUpdate
   sizes: Map<string | number, number>
-  firstRangeTotalSize
-  firstRangeAverageSize
-  fixedSizeValue
-  calcType
-  offset
-  direction
+  firstRangeTotalSize: number
+  firstRangeAverageSize: number
+  fixedSizeValue: number
+  calcType: Calc_Type
+  offset: number
+  direction: Direction_Type
   range: { start: number; end: number; padFront: number; padBehind: number }
 
-  init(param, callUpdate) {
+  init(param, callUpdate: CallUpdate) {
     // param data
     this.param = param
     this.callUpdate = callUpdate
@@ -39,11 +41,11 @@ export default class Virtual {
     this.firstRangeTotalSize = 0
     this.firstRangeAverageSize = 0
     this.fixedSizeValue = 0
-    this.calcType = CALC_TYPE.INIT
+    this.calcType = Calc_Type.Init
 
     // scroll data
     this.offset = 0
-    this.direction = ''
+    this.direction = '' as Direction_Type
 
     // range data
     this.range = Object.create(null)
@@ -71,15 +73,15 @@ export default class Virtual {
   }
 
   isBehind() {
-    return this.direction === DIRECTION_TYPE.BEHIND
+    return this.direction === Direction_Type.Behind
   }
 
   isFront() {
-    return this.direction === DIRECTION_TYPE.FRONT
+    return this.direction === Direction_Type.Front
   }
 
   // return start index offset
-  getOffset(start) {
+  getOffset(start: number) {
     return (start < 1 ? 0 : this.getIndexOffset(start)) + this.param.slotHeaderSize
   }
 
@@ -104,17 +106,17 @@ export default class Virtual {
     // we assume size type is fixed at the beginning and remember first size value
     // if there is no size value different from this at next comming saving
     // we think it's a fixed size list, otherwise is dynamic size list
-    if (this.calcType === CALC_TYPE.INIT) {
+    if (this.calcType === Calc_Type.Init) {
       this.fixedSizeValue = size
-      this.calcType = CALC_TYPE.FIXED
-    } else if (this.calcType === CALC_TYPE.FIXED && this.fixedSizeValue !== size) {
-      this.calcType = CALC_TYPE.DYNAMIC
+      this.calcType = Calc_Type.Fixed
+    } else if (this.calcType === Calc_Type.Fixed && this.fixedSizeValue !== size) {
+      this.calcType = Calc_Type.Dynamic
       // it's no use at all
       delete this.fixedSizeValue
     }
 
     // calculate the average size only in the first range
-    if (this.calcType !== CALC_TYPE.FIXED && typeof this.firstRangeTotalSize !== 'undefined') {
+    if (this.calcType !== Calc_Type.Fixed && typeof this.firstRangeTotalSize !== 'undefined') {
       if (this.sizes.size < Math.min(this.param.keeps, this.param.uniqueIds.length)) {
         this.firstRangeTotalSize = [...this.sizes.values()].reduce((acc, val) => acc + val, 0)
         this.firstRangeAverageSize = Math.round(this.firstRangeTotalSize / this.sizes.size)
@@ -131,9 +133,9 @@ export default class Virtual {
     let start = this.range.start
 
     if (this.isFront()) {
-      start = start - LEADING_BUFFER
+      start = start - Leading_Buffer
     } else if (this.isBehind()) {
-      start = start + LEADING_BUFFER
+      start = start + Leading_Buffer
     }
 
     start = Math.max(start, 0)
@@ -148,16 +150,16 @@ export default class Virtual {
 
   // calculating range on scroll
   handleScroll(offset) {
-    this.direction = offset < this.offset || offset === 0 ? DIRECTION_TYPE.FRONT : DIRECTION_TYPE.BEHIND
+    this.direction = offset < this.offset || offset === 0 ? Direction_Type.Front : Direction_Type.Behind
     this.offset = offset
 
     if (!this.param) {
       return
     }
 
-    if (this.direction === DIRECTION_TYPE.FRONT) {
+    if (this.direction === Direction_Type.Front) {
       this.handleFront()
-    } else if (this.direction === DIRECTION_TYPE.BEHIND) {
+    } else if (this.direction === Direction_Type.Behind) {
       this.handleBehind()
     }
   }
@@ -241,7 +243,7 @@ export default class Virtual {
 
   // is fixed size type
   isFixedType() {
-    return this.calcType === CALC_TYPE.FIXED
+    return this.calcType === Calc_Type.Fixed
   }
 
   // return the real last index
@@ -251,7 +253,7 @@ export default class Virtual {
 
   // in some conditions range is broke, we need correct it
   // and then decide whether need update to next range
-  checkRange(start, end) {
+  checkRange(start: number, end: number) {
     const keeps = this.param.keeps
     const total = this.param.uniqueIds.length
 
@@ -270,7 +272,7 @@ export default class Virtual {
   }
 
   // setting to a new range and rerender
-  updateRange(start, end) {
+  updateRange(start: number, end: number) {
     this.range.start = start
     this.range.end = end
     this.range.padFront = this.getPadFront()
@@ -279,7 +281,7 @@ export default class Virtual {
   }
 
   // return end base on start
-  getEndByStart(start) {
+  getEndByStart(start: number) {
     const theoryEnd = start + this.param.keeps - 1
     const truelyEnd = Math.min(theoryEnd, this.getLastIndex())
     return truelyEnd
