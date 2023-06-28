@@ -3,10 +3,10 @@ import { Button, Checkbox, Radio, Slider, Space, Divider, Input } from '@arco-de
 import { faker } from '@faker-js/faker'
 
 import { useLocalStorageState, useUpdate } from './source-code/hooks'
-import MonacoEditor from './MonacoEditor'
+import MonacoEditor from './components/MonacoEditor'
 import JsonView from './source-code/index'
 import { isComplex } from './source-code/virtualMode/utils'
-import VirtualList from './source-code/virtual-scroll-list'
+import VirtualList from './components/virtual-scroll-list'
 
 faker.setLocale('zh_CN')
 

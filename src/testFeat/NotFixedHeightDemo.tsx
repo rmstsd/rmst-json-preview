@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
-import VirtualList from './source-code/uiComponents/VirtualList'
+import VirtualList from '../source-code/uiComponents/VirtualList'
 
-import { useStateRef } from './source-code/hooks'
+import { useStateRef } from '../source-code/hooks'
 
 faker.setLocale('zh_CN')
 

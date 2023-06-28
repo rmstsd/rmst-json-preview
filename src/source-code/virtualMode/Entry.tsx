@@ -9,7 +9,7 @@ import CopyIcon from './CopyIcon'
 
 import './style.less'
 import { IconArrowDown, IconArrowUp, IconClose } from './Svg'
-import VirtualList from '../virtual-scroll-list'
+import VirtualList from '../../components/virtual-scroll-list'
 
 const rowHeight = 30
 
