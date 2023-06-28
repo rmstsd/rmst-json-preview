@@ -1,15 +1,17 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 import Highlighter from 'react-highlight-words'
 
-import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
-import VirtualListComponent, { IVirtualListRef } from '../uiComponents/VirtualList'
+import PreviewCore, { isLeftBracketItem, HighlightSearch, IRenderItem } from './previewCore'
+
+import VirtualListComponent, { IVirtualListRef } from '../../components/VirtualList'
 import { useUpdate } from '../hooks'
-import CopyIcon from './CopyIcon'
+import CopyIcon from './components/CopyIcon'
 
 import './style.less'
-import { IconArrowDown, IconArrowUp, IconClose } from './Svg'
+import { IconArrowDown, IconArrowUp, IconClose } from './components/Svg'
 import VirtualList from '../../components/virtual-scroll-list'
+import SearchTool from './components/SearchTool'
 
 const rowHeight = 30
 
@@ -22,8 +24,6 @@ type IEntryProps = {
   isFixedHeight?: boolean
   isShowArrayIndex?: boolean
 }
-
-type IHighlightSearch = { rowIndex: number; type: 'key' | 'renderValue'; match: RegExpMatchArray }
 
 const defaultProps = {
   indent: 2,
@@ -38,26 +38,26 @@ const Entry: React.FC<IEntryProps> = props => {
     ...props
   }
 
-  const update = useUpdate()
+  const previewCoreRef = useRef(new PreviewCore({ value }))
+  const vListRef = useRef<IVirtualListRef>()
 
-  const { tabularTotalList, matchBracket } = useMemo(() => {
-    const tabularTotalList = clapTabularFromJson(value)
-    const matchBracket = getAllBracket(tabularTotalList)
-
-    return { tabularTotalList, matchBracket }
-  }, [value])
+  const up = useUpdate()
 
   const [wd, setWd] = useState('')
   const [hightIndex, setHightIndex] = useState(-1)
-  const [highlightSearchList, setHighlightSearchList] = useState<IHighlightSearch[]>([])
+  const [highlightSearchList, setHighlightSearchList] = useState<HighlightSearch[]>([])
   const [searchVisible, setSearchVisible] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    searchOnchange(wd)
+    previewCoreRef.current.updateOption({ value })
+    onSearchChange(wd)
+
+    up()
   }, [value])
 
   useEffect(() => {
+    return
     document.addEventListener('keydown', evt => {
       if (evt.ctrlKey && evt.code === 'KeyF') {
         evt.preventDefault()
@@ -65,7 +65,7 @@ const Entry: React.FC<IEntryProps> = props => {
 
         const selectionText = window.getSelection().toString()
         if (selectionText) {
-          searchOnchange(selectionText)
+          onSearchChange(selectionText)
         }
 
         setTimeout(() => {
@@ -79,19 +79,12 @@ const Entry: React.FC<IEntryProps> = props => {
     })
   }, [])
 
-  const closedArray = matchBracket.filter(o => !o.open)
-  const renderedTotalList = tabularTotalList.filter(item =>
-    closedArray.length ? !closedArray.some(p => item.index > p.startIdx && item.index <= p.endIdx) : true
-  )
-
-  const vListRef = useRef<IVirtualListRef>()
-
   useEffect(() => {
     if (hightIndex === -1 || !highlightSearchList[hightIndex]) {
       return
     }
 
-    const arrIndex = renderedTotalList.findIndex(
+    const arrIndex = previewCoreRef.current.renderedTotalList.findIndex(
       item => item.index === highlightSearchList[hightIndex].rowIndex
     )
 
@@ -100,86 +93,13 @@ const Entry: React.FC<IEntryProps> = props => {
 
   const handleExpand = (clickItem: IRenderItem, evt: React.MouseEvent) => {
     evt.stopPropagation()
-
-    // todo: 处理自身的 open/close
-    if (evt.shiftKey) {
-      const bracketItem = matchBracket.find(o => o.startIdx === clickItem.index)
-      const matchRangeBracket = matchBracket
-        .filter(o => o.startIdx > bracketItem.startIdx && o.endIdx < bracketItem.endIdx)
-        .sort((a, b) => a.startIdx - b.startIdx)
-
-      let last = bracketItem.startIdx
-      const directChildrenBracket: IBracketItem[] = [] // 直接子级们
-      for (const item of matchRangeBracket) {
-        if (item.startIdx > last) {
-          directChildrenBracket.push(item)
-          last = item.endIdx
-        }
-      }
-
-      if (!directChildrenBracket.length) {
-        closeCurrent()
-        update()
-        return
-      }
-
-      const bool = directChildrenBracket.some(item => item.open) ? false : true
-      directChildrenBracket.forEach(item => {
-        item.open = bool
-      })
-
-      update()
-      return
-    }
-
-    closeCurrent()
-    update()
-
-    function closeCurrent() {
-      const target = matchBracket.find(o => o.startIdx === clickItem.index)
-      target.open = !target.open
-    }
+    previewCoreRef.current.handleExpand(clickItem, evt.shiftKey)
+    up()
   }
 
   const handleClickRow = (clickItem: IRenderItem) => {
-    let leftRenderItem: IRenderItem = clickItem
-
-    if (!isLeftBracketItem(clickItem)) {
-      const stack: IRenderItem[] = []
-      const stf = renderedTotalList.filter(o => isLeftBracketItem(o) || isRightBracketItem(o))
-      for (const renderedItem of stf) {
-        const currentIsOpen = getCurrentOpen(renderedItem)
-
-        // 左括号入栈, 只将展开的入栈, 否则括号数量不匹配
-        if (isLeftBracketItem(renderedItem) && currentIsOpen) {
-          stack.push(renderedItem)
-        }
-
-        if (isRightBracketItem(renderedItem)) {
-          if (clickItem.index >= stack.at(-1).index && clickItem.index <= renderedItem.index) {
-            leftRenderItem = stack.at(-1)
-            break
-          }
-          stack.pop()
-        }
-      }
-    }
-    const bracketItem = matchBracket.find(item => item.startIdx === leftRenderItem.index)
-
-    tabularTotalList.forEach(item => {
-      item.highlight = false
-      item.highlightDeep = 0
-    })
-
-    for (let i = leftRenderItem.index + 1; i < bracketItem.endIdx; i++) {
-      tabularTotalList[i].highlight = true
-
-      let highlightDeep = clickItem.deep
-      if (isRightBracketItem(clickItem) || isLeftBracketItem(clickItem)) highlightDeep += 1
-      tabularTotalList[i].highlightDeep = highlightDeep
-    }
-
-    update()
+    previewCoreRef.current.handleClickRow(clickItem)
+    up()
   }
 
   const handleCopy = (clickItem: IRenderItem, evt: React.MouseEvent) => {
@@ -193,11 +113,7 @@ const Entry: React.FC<IEntryProps> = props => {
     if (item.parentDataType === 'Array') return isShowArrayIndex
   }
 
-  const getCurrentOpen = (renderedItem: IRenderItem) => {
-    return matchBracket.find(o => o.startIdx === renderedItem.index)?.open
-  }
-
-  const searchOnchange = (value: string) => {
+  const onSearchChange = (value: string) => {
     const _wd = value
     setWd(_wd)
 
@@ -206,32 +122,22 @@ const Entry: React.FC<IEntryProps> = props => {
       return
     }
 
-    const _highlightSearchList = tabularTotalList.reduce<IHighlightSearch[]>((acc, item) => {
-      if (typeof item.key === 'string') {
-        const singleMatch = Array.from(item.key.matchAll(new RegExp(_wd, 'g')))
-
-        if (singleMatch.length) {
-          acc.push(...singleMatch.map(o => ({ rowIndex: item.index, type: 'key' as const, match: o })))
-        }
-      }
-      if (typeof item.renderValue === 'string') {
-        const singleMatch = Array.from(item.renderValue.matchAll(new RegExp(_wd, 'g')))
-
-        if (singleMatch.length) {
-          acc.push(
-            ...singleMatch.map(o => ({ rowIndex: item.index, type: 'renderValue' as const, match: o }))
-          )
-        }
-      }
-
-      return acc
-    }, [])
+    const _highlightSearchList = previewCoreRef.current.searchWd(_wd)
 
     setHightIndex(0)
     setHighlightSearchList(_highlightSearchList)
   }
 
-  const getActiveIndex = (renderedItem: IRenderItem, type: IHighlightSearch['type']) => {
+  const updateHightIndex = (index: number) => {
+    setHightIndex(index)
+
+    const rowIndex = highlightSearchList[index].rowIndex
+    previewCoreRef.current.openBracket(rowIndex)
+
+    up()
+  }
+
+  const getActiveIndex = (renderedItem: IRenderItem, type: HighlightSearch['type']) => {
     const flatMatchItem = highlightSearchList[hightIndex]
     if (!searchVisible || !flatMatchItem) return -1
 
@@ -254,25 +160,13 @@ const Entry: React.FC<IEntryProps> = props => {
     return -1
   }
 
-  const updateHightIndex = (index: number) => {
-    setHightIndex(index)
-
-    const rowIndex = highlightSearchList[index].rowIndex
-    const shouldOpenBrackets = matchBracket.filter(item => item.startIdx < rowIndex && rowIndex < item.endIdx)
-    shouldOpenBrackets.forEach(item => {
-      item.open = true
-    })
-
-    update()
-  }
-
-  const searchWords = searchVisible ? [wd] : []
-
   const renderRow = (item: any) => {
-    item = item.source as IRenderItem
+    // item = item.source as IRenderItem
 
     const isShowArrayIndex = getIsShowArrayKey(item)
-    const currentOpen = getCurrentOpen(item)
+    const currentOpen = previewCoreRef.current.getCurrentOpen(item)
+
+    const searchWords = searchVisible ? [wd] : []
 
     return (
       <div
@@ -327,7 +221,7 @@ const Entry: React.FC<IEntryProps> = props => {
           style={
             isVirtualMode
               ? isFixedHeight
-                ? { whiteSpace: '' }
+                ? { whiteSpace: 'noWrap' }
                 : { wordBreak: 'break-all', lineHeight: 1.3 }
               : null
           }
@@ -351,69 +245,37 @@ const Entry: React.FC<IEntryProps> = props => {
 
   return (
     <div className="virtual-mode" style={{ ...style }}>
-      <div
-        className={classNames('custom-search-container', searchVisible && 'custom-search-container-visible')}
-      >
-        <input
-          ref={searchInputRef}
-          type="text"
-          value={wd}
-          onChange={evt => searchOnchange(evt.target.value)}
-        />
-        <span className="count-container">
-          {highlightSearchList.length ? (
-            <>
-              <span>第 {hightIndex + 1} 项</span>, <span>共 {highlightSearchList.length} 项</span>
-            </>
-          ) : (
-            '无结果'
-          )}
-        </span>
-        <button
-          className="find-match-btn"
-          onClick={() => {
-            const _v = hightIndex - 1
-            updateHightIndex(_v === -1 ? highlightSearchList.length - 1 : _v)
-          }}
-        >
-          <IconArrowUp />
-        </button>
+      <SearchTool
+        searchInputRef={searchInputRef}
+        searchVisible={searchVisible}
+        setSearchVisible={setSearchVisible}
+        wd={wd}
+        hightIndex={hightIndex}
+        updateHightIndex={updateHightIndex}
+        highlightSearchList={highlightSearchList}
+        onSearchChange={onSearchChange}
+      />
 
-        <button
-          className="find-match-btn"
-          onClick={() => {
-            const _v = hightIndex + 1
-            updateHightIndex(_v === highlightSearchList.length ? 0 : _v)
-          }}
-        >
-          <IconArrowDown />
-        </button>
-
-        <button className="find-match-btn" onClick={() => setSearchVisible(false)}>
-          <IconClose />
-        </button>
-      </div>
+      {/* <VirtualListComponent
+        ref={vListRef}
+        style={{ height: '100%' }}
+        rowHeight={rowHeight}
+        dataSource={renderedTotalList}
+        renderRow={renderRow}
+        isFixedHeight={isFixedHeight}
+      /> */}
 
       {isVirtualMode ? (
-        <VirtualList
-          className="list"
-          style={{ height: '100%', overflow: 'auto' }}
-          dataKey="index"
-          dataSources={renderedTotalList}
-          dataComponent={renderRow}
-          keeps={100}
-          estimateSize={rowHeight}
+        <VirtualListComponent
+          ref={vListRef}
+          style={{ height: '100%' }}
+          rowHeight={rowHeight}
+          dataSource={previewCoreRef.current.renderedTotalList}
+          renderRow={renderRow}
+          isFixedHeight={isFixedHeight}
         />
       ) : (
-        // <VirtualListComponent
-        //   ref={vListRef}
-        //   style={{ height: '100%' }}
-        //   rowHeight={rowHeight}
-        //   dataSource={renderedTotalList}
-        //   renderRow={renderRow}
-        //   isFixedHeight={isFixedHeight}
-        // />
-        renderedTotalList.map(renderRow)
+        previewCoreRef.current.renderedTotalList.map(renderRow)
       )}
     </div>
   )
