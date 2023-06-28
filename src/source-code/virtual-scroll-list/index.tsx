@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Item, { Slot } from './Item'
 import Virtual from './virtual'
+import classNames from 'classnames'
 
 const Event_Type = {
   Item: 'item_resize',
@@ -14,7 +15,7 @@ const Slot_Type = {
 
 const defaultProps = {
   keeps: 30,
-  estimateSize: 50,
+  estimateSize: 20,
   direction: 'vertical',
   start: 0,
   offset: 0,
@@ -23,7 +24,22 @@ const defaultProps = {
   pageMode: false
 }
 
-const VirtualList = props => {
+type VirtualListProps = {
+  dataKey: string | ((dataSource: any) => string | number)
+  dataSources: any[]
+  dataComponent: (item: any) => React.ReactNode
+  estimateSize?: number
+  direction?: 'vertical' | 'horizontal'
+  keeps?: number
+  pageMode?: boolean
+  className?: string
+  style?: React.CSSProperties
+  wrapStyle?: React.CSSProperties
+  header?: React.ReactNode
+  footer?: React.ReactNode
+}
+
+const VirtualList = (props: VirtualListProps) => {
   const combineProps = Object.assign({}, defaultProps, props)
 
   const {
@@ -58,13 +74,15 @@ const VirtualList = props => {
   }, [dataSources])
 
   const installVirtual = () => {
+    const buffer = Math.round(keeps / 3) // recommend for a third of keeps
+
     virtualRef.current = new Virtual(
       {
         slotHeaderSize: 0,
         slotFooterSize: 0,
         keeps,
         estimateSize,
-        buffer: Math.round(keeps / 3), // recommend for a third of keeps
+        buffer,
         uniqueIds: getUniqueIdFromDataSources()
       },
       range => {
@@ -158,7 +176,7 @@ const VirtualList = props => {
   const wrapperStyle = wrapStyle ? Object.assign({}, wrapStyle, paddingStyle) : paddingStyle
 
   return (
-    <div ref={rootRef} onScroll={onScroll} className={className} style={style}>
+    <div ref={rootRef} onScroll={onScroll} className={classNames('v-n-list', className)} style={style}>
       {header && (
         <Slot {...universalProps} uniqueKey={Slot_Type.Header} event={Event_Type.Slot}>
           {header}

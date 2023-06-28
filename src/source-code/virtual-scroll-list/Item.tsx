@@ -39,7 +39,7 @@ const useWrapper = props => {
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
-      dispatchSizeChange()
+      ref.current && dispatchSizeChange()
     })
     resizeObserver.observe(ref.current)
 
@@ -59,6 +59,13 @@ const useWrapper = props => {
   }
 
   return ref
+}
+
+type ItemProps = {
+  component: React.FC
+  index: number
+  source: Record<string, any>
+  uniqueKey: string | number
 }
 
 const Item = props => {

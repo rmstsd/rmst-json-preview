@@ -3,14 +3,15 @@ import classNames from 'classnames'
 import Highlighter from 'react-highlight-words'
 
 import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
-import VirtualList, { IVirtualListRef } from '../uiComponents/VirtualList'
+import VirtualListComponent, { IVirtualListRef } from '../uiComponents/VirtualList'
 import { useUpdate } from '../hooks'
 import CopyIcon from './CopyIcon'
 
 import './style.less'
 import { IconArrowDown, IconArrowUp, IconClose } from './Svg'
+import VirtualList from '../virtual-scroll-list'
 
-const rowHeight = 24
+const rowHeight = 30
 
 type IEntryProps = {
   value: object
@@ -267,7 +268,9 @@ const Entry: React.FC<IEntryProps> = props => {
 
   const searchWords = searchVisible ? [wd] : []
 
-  const renderRow = (item: IRenderItem) => {
+  const renderRow = (item: any) => {
+    item = item.source as IRenderItem
+
     const isShowArrayIndex = getIsShowArrayKey(item)
     const currentOpen = getCurrentOpen(item)
 
@@ -324,7 +327,7 @@ const Entry: React.FC<IEntryProps> = props => {
           style={
             isVirtualMode
               ? isFixedHeight
-                ? { whiteSpace: 'nowrap' }
+                ? { whiteSpace: '' }
                 : { wordBreak: 'break-all', lineHeight: 1.3 }
               : null
           }
@@ -393,14 +396,23 @@ const Entry: React.FC<IEntryProps> = props => {
 
       {isVirtualMode ? (
         <VirtualList
-          ref={vListRef}
-          style={{ height: '100%' }}
-          rowHeight={rowHeight}
-          dataSource={renderedTotalList}
-          renderRow={renderRow}
-          isFixedHeight={isFixedHeight}
+          className="list"
+          style={{ height: '100%', overflow: 'auto' }}
+          dataKey="index"
+          dataSources={renderedTotalList}
+          dataComponent={renderRow}
+          keeps={100}
+          estimateSize={rowHeight}
         />
       ) : (
+        // <VirtualListComponent
+        //   ref={vListRef}
+        //   style={{ height: '100%' }}
+        //   rowHeight={rowHeight}
+        //   dataSource={renderedTotalList}
+        //   renderRow={renderRow}
+        //   isFixedHeight={isFixedHeight}
+        // />
         renderedTotalList.map(renderRow)
       )}
     </div>
