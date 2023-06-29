@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import VirtualList from './source-code/virtual-scroll-list'
+import VirtualList from '../components/virtual-scroll-list'
 
 const TOTAL_COUNT = 200
 
