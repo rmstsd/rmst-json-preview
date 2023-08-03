@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 import Highlighter from 'react-highlight-words'
 
@@ -9,11 +9,11 @@ import { useUpdate } from '../hooks'
 import CopyIcon from './components/CopyIcon'
 
 import './style.less'
-import { IconArrowDown, IconArrowUp, IconClose } from './components/Svg'
-import VirtualList from '../../components/virtual-scroll-list'
+
+import VirtualListVue from '../../components/virtual-scroll-list'
 import SearchTool from './components/SearchTool'
 
-const rowHeight = 30
+const rowHeight = 24
 
 type IEntryProps = {
   value: object
@@ -49,6 +49,9 @@ const Entry: React.FC<IEntryProps> = props => {
   const [searchVisible, setSearchVisible] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  const [keeps, setKeeps] = useState(0)
+  const [lineNumberWidth, setLineNumberWidth] = useState(0)
+
   useEffect(() => {
     previewCoreRef.current.updateOption({ value })
     onSearchChange(wd)
@@ -56,7 +59,18 @@ const Entry: React.FC<IEntryProps> = props => {
     up()
   }, [value])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const keeps = Math.ceil(document.querySelector('.VirtualListVueContainer')?.clientHeight / rowHeight) + 1
+    setKeeps(keeps)
+
+    const span = document.createElement('span')
+    span.style.setProperty('display', 'inline-block')
+    span.innerText = String(previewCoreRef.current.tabularTotalList.at(-1).index)
+    document.body.appendChild(span)
+
+    setLineNumberWidth(span.offsetWidth)
+    span.remove()
+
     return
     document.addEventListener('keydown', evt => {
       if (evt.ctrlKey && evt.code === 'KeyF') {
@@ -160,9 +174,7 @@ const Entry: React.FC<IEntryProps> = props => {
     return -1
   }
 
-  const renderRow = (item: any) => {
-    // item = item.source as IRenderItem
-
+  const renderRow = (item: IRenderItem) => {
     const isShowArrayIndex = getIsShowArrayKey(item)
     const currentOpen = previewCoreRef.current.getCurrentOpen(item)
 
@@ -173,10 +185,12 @@ const Entry: React.FC<IEntryProps> = props => {
         key={item.index}
         row-key={item.index}
         className="row-item"
-        style={!isVirtualMode || (isVirtualMode && !isFixedHeight) ? { minHeight: rowHeight } : null}
+        style={{ minHeight: rowHeight }}
         onClick={() => handleClickRow(item)}
       >
-        <span className="line-numbers">{item.index}</span>
+        <span className="line-numbers" style={{ width: lineNumberWidth }}>
+          {item.index}
+        </span>
         {Array.from({ length: item.deep }).map((_, idx) => (
           <span
             key={idx}
@@ -218,13 +232,13 @@ const Entry: React.FC<IEntryProps> = props => {
           className={`render-value ${item.className || ''}`}
           activeClassName="highlightActive"
           activeIndex={getActiveIndex(item, 'renderValue')}
-          style={
-            isVirtualMode
-              ? isFixedHeight
-                ? { whiteSpace: 'noWrap' }
-                : { wordBreak: 'break-all', lineHeight: 1.3 }
-              : null
-          }
+          // style={
+          //   isVirtualMode
+          //     ? isFixedHeight
+          //       ? { whiteSpace: 'noWrap' }
+          //       : { wordBreak: 'break-all', lineHeight: 1.3 }
+          //     : null
+          // }
           highlightClassName="highlightClassName"
           searchWords={searchWords}
           autoEscape={true}
@@ -243,6 +257,27 @@ const Entry: React.FC<IEntryProps> = props => {
     )
   }
 
+  const VirtualJsx = (
+    // <VirtualListComponent
+    //   ref={vListRef}
+    //   style={{ height: '100%' }}
+    //   rowHeight={rowHeight}
+    //   dataSource={previewCoreRef.current.renderedTotalList}
+    //   renderRow={renderRow}
+    //   isFixedHeight={isFixedHeight}
+    // />
+
+    <VirtualListVue
+      dataKey="index"
+      dataSources={previewCoreRef.current.renderedTotalList}
+      dataComponent={item => renderRow(item.source)}
+      keeps={keeps}
+      buffer={0}
+      style={{ overflow: 'auto', height: '100%' }}
+      className="VirtualListVueContainer"
+    />
+  )
+
   return (
     <div className="virtual-mode" style={{ ...style }}>
       <SearchTool
@@ -256,27 +291,7 @@ const Entry: React.FC<IEntryProps> = props => {
         onSearchChange={onSearchChange}
       />
 
-      {/* <VirtualListComponent
-        ref={vListRef}
-        style={{ height: '100%' }}
-        rowHeight={rowHeight}
-        dataSource={renderedTotalList}
-        renderRow={renderRow}
-        isFixedHeight={isFixedHeight}
-      /> */}
-
-      {isVirtualMode ? (
-        <VirtualListComponent
-          ref={vListRef}
-          style={{ height: '100%' }}
-          rowHeight={rowHeight}
-          dataSource={previewCoreRef.current.renderedTotalList}
-          renderRow={renderRow}
-          isFixedHeight={isFixedHeight}
-        />
-      ) : (
-        previewCoreRef.current.renderedTotalList.map(renderRow)
-      )}
+      {isVirtualMode ? VirtualJsx : previewCoreRef.current.renderedTotalList.map(renderRow)}
     </div>
   )
 }

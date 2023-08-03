@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Item, { Slot } from './Item'
 import Virtual from './virtual'
 import classNames from 'classnames'
+import CustomScrollbar, { CustomScrollbarRef } from '../CustomScrollbar/CustomScrollbar'
 
 const Event_Type = {
   Item: 'item_resize',
@@ -31,6 +32,7 @@ type VirtualListProps = {
   estimateSize?: number
   direction?: 'vertical' | 'horizontal'
   keeps?: number
+  buffer?: number
   pageMode?: boolean
   className?: string
   style?: React.CSSProperties
@@ -49,6 +51,7 @@ const VirtualList = (props: VirtualListProps) => {
     estimateSize,
     direction,
     keeps,
+    buffer,
     pageMode,
     className,
     style,
@@ -64,9 +67,21 @@ const VirtualList = (props: VirtualListProps) => {
   const rootRef = useRef<HTMLDivElement>(null)
   const [range, setRange] = useState({} as Virtual['range'])
 
+  const [syncScrollTop, setSyncScrollTop] = useState(0)
+  const customScrollbarRef: CustomScrollbarRef = useRef(null)
+  useLayoutEffect(() => {
+    customScrollbarRef.current.scrollTo(syncScrollTop)
+  }, [syncScrollTop])
+
+  const onSyncScroll = (scrollTop: number) => {
+    setSyncScrollTop(scrollTop)
+
+    virtualRef.current.handleScroll(scrollTop)
+  }
+
   useEffect(() => {
     installVirtual()
-  }, [])
+  }, [keeps])
 
   useEffect(() => {
     virtualRef.current.updateParam('uniqueIds', getUniqueIdFromDataSources())
@@ -74,7 +89,7 @@ const VirtualList = (props: VirtualListProps) => {
   }, [dataSources])
 
   const installVirtual = () => {
-    const buffer = Math.round(keeps / 3) // recommend for a third of keeps
+    const _buffer = buffer === undefined ? Math.round(keeps / 3) : buffer // recommend for a third of keeps
 
     virtualRef.current = new Virtual(
       {
@@ -82,7 +97,7 @@ const VirtualList = (props: VirtualListProps) => {
         slotFooterSize: 0,
         keeps,
         estimateSize,
-        buffer,
+        buffer: _buffer,
         uniqueIds: getUniqueIdFromDataSources()
       },
       range => {
@@ -176,7 +191,32 @@ const VirtualList = (props: VirtualListProps) => {
   const wrapperStyle = wrapStyle ? Object.assign({}, wrapStyle, paddingStyle) : paddingStyle
 
   return (
-    <div ref={rootRef} onScroll={onScroll} className={classNames('v-n-list', className)} style={style}>
+    <CustomScrollbar
+      ref={customScrollbarRef}
+      className={classNames('v-n-list', className)}
+      style={{ ...style, height: '100%' }}
+      onSyncScroll={onSyncScroll}
+    >
+      {header && (
+        <Slot {...universalProps} uniqueKey={Slot_Type.Header} event={Event_Type.Slot}>
+          {header}
+        </Slot>
+      )}
+
+      <div className="wrap" {...{ role: 'group' }} style={{ ...wrapperStyle }}>
+        {getRenderSlots()}
+      </div>
+
+      {footer && (
+        <Slot {...universalProps} uniqueKey={Slot_Type.Footer} event={Event_Type.Slot}>
+          {footer}
+        </Slot>
+      )}
+    </CustomScrollbar>
+  )
+
+  return (
+    <div ref={rootRef} onScroll={onScroll} className={classNames('vue-n-list', className)} style={style}>
       {header && (
         <Slot {...universalProps} uniqueKey={Slot_Type.Header} event={Event_Type.Slot}>
           {header}
