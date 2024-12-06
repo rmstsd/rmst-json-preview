@@ -28,7 +28,7 @@ const defaultProps = {
   indent: 2,
   isVirtualMode: true,
   isShowArrayIndex: false,
-  isFixedHeight: true
+  isFixedHeight: false
 }
 
 const Entry: React.FC<IEntryProps> = props => {
@@ -87,9 +87,7 @@ const Entry: React.FC<IEntryProps> = props => {
       return
     }
 
-    const arrIndex = renderedTotalList.findIndex(
-      item => item.index === highlightSearchList[hightIndex].rowIndex
-    )
+    const arrIndex = renderedTotalList.findIndex(item => item.index === highlightSearchList[hightIndex].rowIndex)
 
     vListRef.current?.scrollToIndexIfNeed(arrIndex)
   }, [hightIndex])
@@ -214,9 +212,7 @@ const Entry: React.FC<IEntryProps> = props => {
         const singleMatch = Array.from(item.renderValue.matchAll(new RegExp(_wd, 'g')))
 
         if (singleMatch.length) {
-          acc.push(
-            ...singleMatch.map(o => ({ rowIndex: item.index, type: 'renderValue' as const, match: o }))
-          )
+          acc.push(...singleMatch.map(o => ({ rowIndex: item.index, type: 'renderValue' as const, match: o })))
         }
       }
 
@@ -273,7 +269,7 @@ const Entry: React.FC<IEntryProps> = props => {
         key={item.index}
         row-key={item.index}
         className="row-item"
-        style={!isVirtualMode || (isVirtualMode && !isFixedHeight) ? { minHeight: rowHeight } : null}
+        style={{ minHeight: rowHeight }}
         onClick={() => handleClickRow(item)}
       >
         <span className="line-numbers">{item.index}</span>
@@ -311,25 +307,22 @@ const Entry: React.FC<IEntryProps> = props => {
           </>
         )}
 
-        {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !currentOpen)) &&
-          !currentOpen && <span>{item.dataType}</span>}
+        {(item.type === 'leftBracket' || (item.type === 'key-leftBracket' && !currentOpen)) && !currentOpen && (
+          <span>{item.dataType}</span>
+        )}
 
-        <Highlighter
+        {/* <Highlighter
           className={`render-value ${item.className || ''}`}
           activeClassName="highlightActive"
           activeIndex={getActiveIndex(item, 'renderValue')}
-          style={
-            isVirtualMode
-              ? isFixedHeight
-                ? { whiteSpace: 'nowrap' }
-                : { wordBreak: 'break-all', lineHeight: 1.3 }
-              : null
-          }
+          style={{ wordBreak: 'break-all', lineHeight: 1.3 }}
           highlightClassName="highlightClassName"
           searchWords={searchWords}
           autoEscape={true}
           textToHighlight={item.renderValue}
-        />
+        /> */}
+
+        <pre className={`render-value ${item.className || ''}`}>{item.renderValue}</pre>
 
         {isLeftBracketItem(item) && !currentOpen && (
           <>
@@ -338,22 +331,17 @@ const Entry: React.FC<IEntryProps> = props => {
           </>
         )}
 
-        {(item.isComma || (currentOpen === false && !item.isLastOne)) && <span>,</span>}
+        {(item.isComma || (currentOpen === false && !item.isLastOne)) && (
+          <span style={{ alignSelf: 'flex-end' }}>,</span>
+        )}
       </div>
     )
   }
 
   return (
     <div className="virtual-mode" style={{ ...style }}>
-      <div
-        className={classNames('custom-search-container', searchVisible && 'custom-search-container-visible')}
-      >
-        <input
-          ref={searchInputRef}
-          type="text"
-          value={wd}
-          onChange={evt => searchOnchange(evt.target.value)}
-        />
+      <div className={classNames('custom-search-container', searchVisible && 'custom-search-container-visible')}>
+        <input ref={searchInputRef} type="text" value={wd} onChange={evt => searchOnchange(evt.target.value)} />
         <span className="count-container">
           {highlightSearchList.length ? (
             <>

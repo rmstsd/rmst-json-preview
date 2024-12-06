@@ -7,11 +7,11 @@ import JsonView from './source-code/index'
 import { cacheAction, getCachedItemByCurrentHash } from './cached'
 import { entiretyJsonStringToObject, internalJsonStringToObject } from './utils'
 
+const isVirtualMode = true
+
 const App = () => {
   const [indent, setIndent] = useLocalStorageState(2, 'ind')
   const [isStrToObject, setIsStrToObject] = useLocalStorageState(false, 'sto')
-  const [isVirtualMode, setIsVirtualMode] = useLocalStorageState(true, 'vir')
-  const [isFixedHeight, setIsFixedHeight] = useLocalStorageState(true, 'immutable-height')
   const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
   const [previewStyle, setPreviewStyle] = useLocalStorageState<'monaco' | 'me'>('me', 'previewStyle')
 
@@ -86,10 +86,6 @@ const App = () => {
             <Checkbox checked={isShowArrayIndex} onChange={setIsShowArrayIndex}>
               数组索引
             </Checkbox>
-
-            <Checkbox checked={isVirtualMode} onChange={setIsVirtualMode}>
-              虚拟滚动
-            </Checkbox>
           </>
         )}
       </Space>
@@ -128,7 +124,6 @@ const App = () => {
             value={jsonObject}
             indent={indent}
             isVirtualMode={isVirtualMode}
-            isFixedHeight={isFixedHeight}
             isShowArrayIndex={isShowArrayIndex}
             style={{
               height: '100%',
