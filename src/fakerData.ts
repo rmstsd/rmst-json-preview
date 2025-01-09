@@ -4,6 +4,8 @@ faker.setLocale('zh_CN')
 
 export const fakeData = Array.from({ length: 5 }, () => ({
   title: Math.random().toString(36),
+  cc: [],
+  dd: {},
   // .repeat(Math.floor(Math.random() * 20))
   jsonString: `{
       "ghj": 2,
@@ -26,7 +28,8 @@ export const fakeData = Array.from({ length: 5 }, () => ({
     }`,
   arr: [1, faker.internet.userName(), 3],
   obj: {
-    aaa: faker.internet.userName(),
-    bbb: faker.internet.userName()
+    aaa: faker.internet.userName().repeat(20),
+    bbb: faker.internet.userName(),
+    qwe: {},
   }
 }))

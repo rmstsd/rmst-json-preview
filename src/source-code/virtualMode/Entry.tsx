@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
 import Highlighter from 'react-highlight-words'
+import { Virtuoso } from 'react-virtuoso'
 
 import { clapTabularFromJson, getAllBracket, isLeftBracketItem, isRightBracketItem } from './utils'
-import VirtualList, { IVirtualListRef } from '../uiComponents/VirtualList'
 import { useUpdate } from '../hooks'
 import CopyIcon from './CopyIcon'
 
@@ -17,8 +17,6 @@ type IEntryProps = {
   indent: number
   containerHeight?: number
   style?: React.CSSProperties
-  isVirtualMode?: boolean
-  isFixedHeight?: boolean
   isShowArrayIndex?: boolean
 }
 
@@ -26,16 +24,11 @@ type IHighlightSearch = { rowIndex: number; type: 'key' | 'renderValue'; match: 
 
 const defaultProps = {
   indent: 2,
-  isVirtualMode: true,
-  isShowArrayIndex: false,
-  isFixedHeight: false
+  isShowArrayIndex: false
 }
 
 const Entry: React.FC<IEntryProps> = props => {
-  const { value, indent, style, isVirtualMode, isFixedHeight, isShowArrayIndex } = {
-    ...defaultProps,
-    ...props
-  }
+  const { value, indent, style, isShowArrayIndex } = { ...defaultProps, ...props }
 
   const update = useUpdate()
 
@@ -52,45 +45,10 @@ const Entry: React.FC<IEntryProps> = props => {
   const [searchVisible, setSearchVisible] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    document.addEventListener('keydown', evt => {
-      return
-      if (evt.ctrlKey && evt.code === 'KeyF') {
-        evt.preventDefault()
-        setSearchVisible(true)
-
-        const selectionText = window.getSelection().toString()
-        if (selectionText) {
-          searchOnchange(selectionText)
-        }
-
-        setTimeout(() => {
-          searchInputRef.current?.focus()
-          searchInputRef.current.select()
-        }, 0)
-      }
-      if (evt.code === 'Escape') {
-        setSearchVisible(false)
-      }
-    })
-  }, [])
-
   const closedArray = matchBracket.filter(o => !o.open)
   const renderedTotalList = tabularTotalList.filter(item =>
     closedArray.length ? !closedArray.some(p => item.index > p.startIdx && item.index <= p.endIdx) : true
   )
-
-  const vListRef = useRef<IVirtualListRef>()
-
-  useEffect(() => {
-    if (hightIndex === -1 || !highlightSearchList[hightIndex]) {
-      return
-    }
-
-    const arrIndex = renderedTotalList.findIndex(item => item.index === highlightSearchList[hightIndex].rowIndex)
-
-    vListRef.current?.scrollToIndexIfNeed(arrIndex)
-  }, [hightIndex])
 
   const handleExpand = (clickItem: IRenderItem, evt: React.MouseEvent) => {
     evt.stopPropagation()
@@ -260,16 +218,47 @@ const Entry: React.FC<IEntryProps> = props => {
 
   const searchWords = searchVisible ? [wd] : []
 
-  const renderRow = (item: IRenderItem) => {
+  const renderRow = (index: number) => {
+    const item = renderedTotalList[index]
+
     const isShowArrayIndex = getIsShowArrayKey(item)
     const currentOpen = getCurrentOpen(item)
+
+    if (item.type === 'empty-array-or-object') {
+      return (
+        <div
+          key={item.index}
+          row-key={item.index}
+          className="row-item"
+          style={{ minHeight: rowHeight, alignItems: 'center' }}
+        >
+          <span className="line-numbers">{item.index}</span>
+          {Array.from({ length: item.deep }).map((_, idx) => (
+            <span
+              key={idx}
+              className={classNames('indent', {
+                highlight: item.highlight && idx + 1 === item.highlightDeep
+              })}
+              style={{ width: indent * 20 }}
+            />
+          ))}
+          <span className="key">{item.key}</span>
+          <span className="colon">:</span>
+          <span>{item.dataType}</span>
+          <span>{item.renderValue}</span>
+          <span className="object-count">{item.length}</span>
+          <span>{item.rightBracket}</span>
+          {item.isComma && <span style={{ alignSelf: 'flex-end' }}>,</span>}
+        </div>
+      )
+    }
 
     return (
       <div
         key={item.index}
         row-key={item.index}
         className="row-item"
-        style={{ minHeight: rowHeight }}
+        style={{ minHeight: rowHeight, alignItems: item.type === 'key-value' ? 'flex-start' : 'center' }}
         onClick={() => handleClickRow(item)}
       >
         <span className="line-numbers">{item.index}</span>
@@ -311,18 +300,7 @@ const Entry: React.FC<IEntryProps> = props => {
           <span>{item.dataType}</span>
         )}
 
-        {/* <Highlighter
-          className={`render-value ${item.className || ''}`}
-          activeClassName="highlightActive"
-          activeIndex={getActiveIndex(item, 'renderValue')}
-          style={{ wordBreak: 'break-all', lineHeight: 1.3 }}
-          highlightClassName="highlightClassName"
-          searchWords={searchWords}
-          autoEscape={true}
-          textToHighlight={item.renderValue}
-        /> */}
-
-        <pre className={`render-value ${item.className || ''}`}>{item.renderValue}</pre>
+        <span className={`render-value ${item.className || ''}`}>{item.renderValue}</span>
 
         {isLeftBracketItem(item) && !currentOpen && (
           <>
@@ -376,27 +354,11 @@ const Entry: React.FC<IEntryProps> = props => {
         </button>
       </div>
 
-      {/* <button
-        style={{ position: 'absolute', top: 0, left: 200, zIndex: 10 }}
-        onClick={() => {
-          vListRef.current?.scrollToIndexIfNeed(60)
-        }}
-      >
-        滚动到
-      </button> */}
-
-      {isVirtualMode ? (
-        <VirtualList
-          ref={vListRef}
-          style={{ height: '100%' }}
-          rowHeight={rowHeight}
-          dataSource={renderedTotalList}
-          renderRow={renderRow}
-          isFixedHeight={isFixedHeight}
-        />
-      ) : (
-        renderedTotalList.map(renderRow)
-      )}
+      <Virtuoso
+        style={{ height: '100%' }}
+        totalCount={renderedTotalList.length}
+        itemContent={index => <>{renderRow(index)}</>}
+      />
     </div>
   )
 }

@@ -58,29 +58,46 @@ export function clapTabularFromJson(value: object, deep: number = 1) {
       }
 
       function handleObject() {
-        ans.push({
-          type: 'key-leftBracket',
-          key,
-          renderValue: isArray(mainValue) ? '[' : '{',
-          rightBracket: isArray(mainValue) ? ']' : '}',
-          deep,
-          open: true,
-          isLastOne: idx == keys.length - 1,
-          length: Object.keys(mainValue).length,
-          dataType: isArray(mainValue) ? 'Array' : 'Object',
-          parentDataType: isArray(value) ? 'Array' : 'Object',
-          mainValue
-        })
+        if (Object.keys(mainValue).length === 0) {
+          ans.push({
+            type: 'empty-array-or-object',
+            key,
+            renderValue: isArray(mainValue) ? '[' : '{',
+            rightBracket: isArray(mainValue) ? ']' : '}',
+            deep,
+            open: true,
+            isLastOne: idx == keys.length - 1,
+            length: Object.keys(mainValue).length,
+            dataType: isArray(mainValue) ? 'Array' : 'Object',
+            parentDataType: isArray(value) ? 'Array' : 'Object',
+            mainValue,
+            isComma: idx !== keys.length - 1
+          })
+        } else {
+          ans.push({
+            type: 'key-leftBracket',
+            key,
+            renderValue: isArray(mainValue) ? '[' : '{',
+            rightBracket: isArray(mainValue) ? ']' : '}',
+            deep,
+            open: true,
+            isLastOne: idx == keys.length - 1,
+            length: Object.keys(mainValue).length,
+            dataType: isArray(mainValue) ? 'Array' : 'Object',
+            parentDataType: isArray(value) ? 'Array' : 'Object',
+            mainValue
+          })
 
-        getAllRow(mainValue, deep + 1)
+          getAllRow(mainValue, deep + 1)
 
-        ans.push({
-          type: 'rightBracket',
-          key: null,
-          renderValue: isArray(mainValue) ? ']' : '}',
-          deep,
-          isComma: idx !== keys.length - 1
-        })
+          ans.push({
+            type: 'rightBracket',
+            key: null,
+            renderValue: isArray(mainValue) ? ']' : '}',
+            deep,
+            isComma: idx !== keys.length - 1
+          })
+        }
       }
     })
   }

@@ -1,5 +1,5 @@
 type IRenderItem = {
-  type: 'leftBracket' | 'key-leftBracket' | 'rightBracket' | 'key-value' // 括号类型
+  type: 'leftBracket' | 'key-leftBracket' | 'rightBracket' | 'key-value' | 'empty-array-or-object' // 括号类型
   key: string | null
   renderValue: any // 渲染到页面的值
   deep: number // 缩进深度

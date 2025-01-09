@@ -6,8 +6,7 @@ import MonacoEditor from './MonacoEditor'
 import JsonView from './source-code/index'
 import { cacheAction, getCachedItemByCurrentHash } from './cached'
 import { entiretyJsonStringToObject, internalJsonStringToObject } from './utils'
-
-const isVirtualMode = true
+import { fakeData } from './fakerData'
 
 const App = () => {
   const [indent, setIndent] = useLocalStorageState(2, 'ind')
@@ -15,7 +14,7 @@ const App = () => {
   const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
   const [previewStyle, setPreviewStyle] = useLocalStorageState<'monaco' | 'me'>('me', 'previewStyle')
 
-  const [value, setStateValue] = useState(() => getCachedItemByCurrentHash())
+  const [value, setStateValue] = useState(() => JSON.stringify(fakeData))
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -23,7 +22,6 @@ const App = () => {
       const cachedItem = getCachedItemByCurrentHash()
       setStateValue(cachedItem)
     }
-
     window.addEventListener('hashchange', cb)
     return () => {
       window.removeEventListener('hashchange', cb)
@@ -123,16 +121,13 @@ const App = () => {
           <JsonView
             value={jsonObject}
             indent={indent}
-            isVirtualMode={isVirtualMode}
             isShowArrayIndex={isShowArrayIndex}
             style={{
               height: '100%',
               width: 'calc(100% - 210px)',
               marginLeft: 10,
               boxSizing: 'border-box',
-              border: '1px solid #b5b3b3',
-              padding: '5px 0 5px 5px',
-              ...(isVirtualMode ? {} : { overflow: 'auto' })
+              border: '1px solid #b5b3b3'
             }}
           />
         )}
