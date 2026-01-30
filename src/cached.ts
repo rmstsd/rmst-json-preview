@@ -15,7 +15,6 @@ export function getCachedItemByCurrentHash() {
 
 export function cacheAction(value: string) {
   const hash = Date.now().toString()
-  history.pushState({}, '', `#${hash}`)
 
   const cachedJson = getCachedJson()
   cachedJson[hash] = value
@@ -27,5 +26,10 @@ export function cacheAction(value: string) {
     })
   }
 
-  localStorage.cachedJson = JSON.stringify(cachedJson)
+  try {
+    localStorage.cachedJson = JSON.stringify(cachedJson)
+    history.pushState({}, '', `#${hash}`)
+  } catch (error) {
+    console.log('cacheAction error', error)
+  }
 }

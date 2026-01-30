@@ -1,5 +1,5 @@
 {
-  "name": "xxx",
+  "name": "rmst-json-preview",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@arco-design/web-react": "^2.49.0",
-    "@faker-js/faker": "^7.6.0",
     "classnames": "^2.3.2",
     "less": "^4.1.3",
     "monaco-editor": "^0.38.0",

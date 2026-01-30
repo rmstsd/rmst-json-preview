@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Checkbox, Radio, Slider, Space, Divider, Input } from '@arco-design/web-react'
+import { Button, Checkbox, Radio, Slider, Space, Divider, Input, Tooltip } from '@arco-design/web-react'
 
 import { useLocalStorageState } from './source-code/hooks'
 import MonacoEditor from './MonacoEditor'
 import JsonView from './source-code/index'
 import { cacheAction, getCachedItemByCurrentHash } from './cached'
-import { entiretyJsonStringToObject, internalJsonStringToObject } from './utils'
-import { fakeData } from './fakerData'
+import { entiretyJsonStringToObject, internalJsonStringToObjectEntry } from './utils'
+import { fakeData } from './fakeData'
 
 const App = () => {
   const [indent, setIndent] = useLocalStorageState(2, 'ind')
+  const [jsonParseDeep, setJsonParseDeep] = useLocalStorageState(1, 'json-parse-deep')
+  const [parseJSONTooltipOpen, setParseJSONTooltipOpen] = useState(false)
   const [isStrToObject, setIsStrToObject] = useLocalStorageState(false, 'sto')
   const [isShowArrayIndex, setIsShowArrayIndex] = useLocalStorageState(true, 'sk')
   const [previewStyle, setPreviewStyle] = useLocalStorageState<'monaco' | 'me'>('me', 'previewStyle')
@@ -35,10 +37,10 @@ const App = () => {
   const jsonObject = useMemo(() => {
     const ans = entiretyJsonStringToObject(value)
     if (isStrToObject) {
-      return internalJsonStringToObject(ans)
+      return internalJsonStringToObjectEntry(ans, jsonParseDeep)
     }
     return ans
-  }, [value, isStrToObject])
+  }, [value, isStrToObject, jsonParseDeep])
 
   const pasteHandle = async () => {
     const str = await navigator.clipboard.readText()
@@ -52,21 +54,17 @@ const App = () => {
 
   const headerTools = (
     <section className="tool-container">
-      <Space split={<Divider type="vertical" style={{ margin: '0 5px', borderColor: '#c5c5c5' }} />}>
-        {window.utools ? (
-          '将JSON字符串粘贴到下方'
-        ) : (
-          <Button onClick={pasteHandle} type="primary" size="mini" style={{ marginRight: 10 }}>
-            粘 贴
-          </Button>
-        )}
+      <Space split={<Divider type="vertical" style={{ margin: '0 4px', borderColor: '#c5c5c5' }} />}>
+        <Button onClick={pasteHandle} type="primary" size="mini" style={{ marginRight: 4 }}>
+          粘 贴
+        </Button>
 
         <Radio.Group value={previewStyle} onChange={setPreviewStyle}>
           <Radio value="monaco" style={{ marginRight: 10 }}>
-            monaco
+            Monaco
           </Radio>
-          <Radio value="me" style={{ marginRight: 10 }}>
-            me
+          <Radio value="me" style={{ marginRight: 4 }}>
+            Rmst
           </Radio>
         </Radio.Group>
 
@@ -75,17 +73,33 @@ const App = () => {
           <Slider value={indent} onChange={setIndent} max={4} min={1} showTicks style={{ width: 60, marginLeft: 10 }} />
         </span>
 
-        <Checkbox checked={isStrToObject} onChange={setIsStrToObject}>
-          json字符串转对象
-        </Checkbox>
-
         {previewStyle === 'me' && (
-          <>
-            <Checkbox checked={isShowArrayIndex} onChange={setIsShowArrayIndex}>
-              数组索引
-            </Checkbox>
-          </>
+          <Checkbox checked={isShowArrayIndex} onChange={setIsShowArrayIndex}>
+            数组索引
+          </Checkbox>
         )}
+
+        <div>
+          <Tooltip content="JSON 字符串转成对象" popupVisible={parseJSONTooltipOpen} onVisibleChange={setParseJSONTooltipOpen}>
+            <Checkbox checked={isStrToObject} onChange={setIsStrToObject} onClick={() => setParseJSONTooltipOpen(false)}>
+              Parse
+            </Checkbox>
+          </Tooltip>
+          <span></span>
+          {isStrToObject && (
+            <span style={{ marginLeft: 5 }}>
+              深度
+              <Slider
+                value={jsonParseDeep}
+                onChange={setJsonParseDeep}
+                max={6}
+                min={1}
+                showTicks
+                style={{ width: 80, marginLeft: 10 }}
+              />
+            </span>
+          )}
+        </div>
       </Space>
 
       <div style={{ marginLeft: 'auto' }}>按住shift 将对直接子级open/close</div>
