@@ -11,9 +11,6 @@ importers:
       '@arco-design/web-react':
         specifier: ^2.49.0
         version: 2.66.10(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@faker-js/faker':
-        specifier: ^7.6.0
-        version: 7.6.0
       classnames:
         specifier: ^2.3.2
         version: 2.5.1
@@ -284,10 +281,6 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
-
-  '@faker-js/faker@7.6.0':
-    resolution: {integrity: sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==}
-    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -896,8 +889,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.18.20':
     optional: true
-
-  '@faker-js/faker@7.6.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
