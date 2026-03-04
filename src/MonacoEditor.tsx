@@ -38,9 +38,12 @@ const MonacoEditor: FC<MonacoEditorProps> = ({ value, ...hTMLAttributes }) => {
       mouseWheelZoom: true,
       smoothScrolling: true,
       fontSize: 18,
-      minimap: { maxColumn: 50, showSlider: 'always' },
+      minimap: { maxColumn: 80, showSlider: 'always' },
       tabCompletion: 'on',
-      tabSize: 2
+      tabSize: 2,
+      stickyScroll: {
+        enabled: true
+      }
     })
 
     const ob = new ResizeObserver(() => {
